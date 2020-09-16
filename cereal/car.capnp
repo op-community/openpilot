@@ -93,7 +93,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     driverMonitorLowAcc @68;
     invalidLkasSetting @69;
     speedTooHigh @70;
-    laneChangeBlockedDEPRECATED @71;
+    laneChangeBlocked @71;
     relayMalfunction @72;
     gasPressed @73;
     stockFcw @74;
@@ -105,7 +105,14 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     steerSaturated @80;
     whitePandaUnsupported @81;
     startupWhitePanda @82;
-    canErrorPersistent @83;
+    canErrorPersistentDEPRECATED @83;
+    belowEngageSpeed @84;
+    noGps @85;
+    focusRecoverActive @86;
+    wrongCruiseMode @87;
+    neosUpdateRequired @88;
+    modeldLagging @89;
+    deviceFalling @90;
   }
 }
 
@@ -187,6 +194,7 @@ struct CarState {
     available @2 :Bool;
     speedOffset @3 :Float32;
     standstill @4 :Bool;
+    nonAdaptive @5 :Bool;
   }
 
   enum GearShifter {
@@ -398,6 +406,12 @@ struct CarParams {
   communityFeature @46: Bool;  # true if a community maintained feature is detected
   fingerprintSource @49: FingerprintSource;
   networkLocation @50 :NetworkLocation;  # Where Panda/C2 is integrated into the car's CAN network
+  mdpsHarness @51: Bool;
+  sasBus @52: Int8;
+  fcaBus @53: Int8;
+  bsmAvailable @54: Bool;
+  lfaAvailable @55: Bool;
+  sccBus @56: Int8;
 
   struct LateralParams {
     torqueBP @0 :List(Int32);
@@ -410,6 +424,8 @@ struct CarParams {
     kiBP @2 :List(Float32);
     kiV @3 :List(Float32);
     kf @4 :Float32;
+    kfV @5 :List(Float32);
+    kfBP @6 :List(Float32);
   }
 
   struct LongitudinalPIDTuning {
@@ -419,6 +435,8 @@ struct CarParams {
     kiV @3 :List(Float32);
     deadzoneBP @4 :List(Float32);
     deadzoneV @5 :List(Float32);
+    kfBP @6 :List(Float32);
+    kfV @7 :List(Float32);
   }
 
   struct LateralINDITuning {
@@ -466,6 +484,9 @@ struct CarParams {
     hondaBoschHarness @20;
     volkswagenPq @21;
     subaruLegacy @22;  # pre-Global platform
+    hyundaiLegacy @23;
+    hyundaiCommunity @24;
+    hyundaiCommunityNonscc @25;
   }
 
   enum SteerControlType {

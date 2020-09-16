@@ -1,6 +1,5 @@
 # python library to interface with panda
 import datetime
-import binascii
 import struct
 import hashlib
 import socket
@@ -11,7 +10,6 @@ import traceback
 import subprocess
 import sys
 from .dfu import PandaDFU  # pylint: disable=import-error
-from .esptool import ESPROM, CesantaFlasher  # noqa pylint: disable=import-error
 from .flash_release import flash_release  # noqa pylint: disable=import-error
 from .update import ensure_st_up_to_date  # noqa pylint: disable=import-error
 from .serial import PandaSerial  # noqa pylint: disable=import-error
@@ -30,10 +28,7 @@ def build_st(target, mkfile="Makefile", clean=True):
 
   clean_cmd = "make -f %s clean" % mkfile if clean else ":"
   cmd = 'cd %s && %s && make -f %s %s' % (os.path.join(BASEDIR, "board"), clean_cmd, mkfile, target)
-  try:
-    _ = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-  except subprocess.CalledProcessError:
-    raise
+  _ = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
 
 def parse_can_buffer(dat):
   ret = []
@@ -47,7 +42,7 @@ def parse_can_buffer(dat):
       address = f1 >> 21
     dddat = ddat[8:8 + (f2 & 0xF)]
     if DEBUG:
-      print("  R %x: %s" % (address, binascii.hexlify(dddat)))
+      print(f"  R 0x{address:x}: 0x{dddat.hex()}")
     ret.append((address, f2 >> 16, dddat, (f2 >> 4) & 0xFF))
   return ret
 
@@ -132,6 +127,9 @@ class Panda(object):
   SAFETY_HONDA_BOSCH_HARNESS = 20
   SAFETY_VOLKSWAGEN_PQ = 21
   SAFETY_SUBARU_LEGACY = 22
+  SAFETY_HYUNDAI_LEGACY = 23
+  SAFETY_HYUNDAI_COMMUNITY = 24
+  SAFETY_HYUNDAI_COMMUNITY_NONSCC = 25
 
   SERIAL_DEBUG = 0
   SERIAL_ESP = 1
@@ -150,6 +148,10 @@ class Panda(object):
   HW_TYPE_BLACK_PANDA = b'\x03'
   HW_TYPE_PEDAL = b'\x04'
   HW_TYPE_UNO = b'\x05'
+
+  CLOCK_SOURCE_MODE_DISABLED = 0
+  CLOCK_SOURCE_MODE_FREE_RUNNING = 1
+  CLOCK_SOURCE_MODE_EXTERNAL_SYNC = 2
 
   def __init__(self, serial=None, claim=True):
     self._serial = serial
@@ -381,7 +383,6 @@ class Panda(object):
       self._handle.controlWrite(Panda.REQUEST_OUT, 0xd1, 0, 0, b'')
     except Exception as e:
       print(e)
-      pass
 
   def get_version(self):
     return self._handle.controlRead(Panda.REQUEST_IN, 0xd6, 0, 0, 0x40).decode('utf8')
@@ -492,7 +493,7 @@ class Panda(object):
     for addr, _, dat, bus in arr:
       assert len(dat) <= 8
       if DEBUG:
-        print("  W %x: %s" % (addr, binascii.hexlify(dat)))
+        print(f"  W 0x{addr:x}: 0x{dat.hex()}")
       if addr >= 0x800:
         rir = (addr << 3) | transmit | extended
       else:
@@ -575,12 +576,21 @@ class Panda(object):
   # ******************* kline *******************
 
   # pulse low for wakeup
-  def kline_wakeup(self):
+  def kline_wakeup(self, k=True, l=True):
+    assert k or l, "must specify k-line, l-line, or both"
     if DEBUG:
       print("kline wakeup...")
-    self._handle.controlWrite(Panda.REQUEST_OUT, 0xf0, 0, 0, b'')
+    self._handle.controlWrite(Panda.REQUEST_OUT, 0xf0, 2 if k and l else int(l), 0, b'')
     if DEBUG:
       print("kline wakeup done")
+
+  def kline_5baud(self, addr, k=True, l=True):
+    assert k or l, "must specify k-line, l-line, or both"
+    if DEBUG:
+      print("kline 5 baud...")
+    self._handle.controlWrite(Panda.REQUEST_OUT, 0xf4, 2 if k and l else int(l), addr, b'')
+    if DEBUG:
+      print("kline 5 baud done")
 
   def kline_drain(self, bus=2):
     # drain buffer
@@ -590,7 +600,7 @@ class Panda(object):
       if len(ret) == 0:
         break
       elif DEBUG:
-        print("kline drain: " + binascii.hexlify(ret))
+        print(f"kline drain: 0x{ret.hex()}")
       bret += ret
     return bytes(bret)
 
@@ -599,35 +609,31 @@ class Panda(object):
     while len(echo) != cnt:
       ret = self._handle.controlRead(Panda.REQUEST_OUT, 0xe0, bus, 0, cnt - len(echo))
       if DEBUG and len(ret) > 0:
-        print("kline recv: " + binascii.hexlify(ret))
+        print(f"kline recv: 0x{ret.hex()}")
       echo += ret
-    return str(echo)
+    return bytes(echo)
 
   def kline_send(self, x, bus=2, checksum=True):
-    def get_checksum(dat):
-      result = 0
-      result += sum(map(ord, dat)) if isinstance(b'dat', str) else sum(dat)
-      result = -result
-      return struct.pack("B", result % 0x100)
-
     self.kline_drain(bus=bus)
     if checksum:
-      x += get_checksum(x)
+      x += bytes([sum(x) % 0x100])
     for i in range(0, len(x), 0xf):
       ts = x[i:i + 0xf]
       if DEBUG:
-        print("kline send: " + binascii.hexlify(ts))
+        print(f"kline send: 0x{ts.hex()}")
       self._handle.bulkWrite(2, bytes([bus]) + ts)
       echo = self.kline_ll_recv(len(ts), bus=bus)
       if echo != ts:
-        print("**** ECHO ERROR %d ****" % i)
-        print(binascii.hexlify(echo))
-        print(binascii.hexlify(ts))
+        print(f"**** ECHO ERROR {i} ****")
+        print(f"0x{echo.hex()}")
+        print(f"0x{ts.hex()}")
     assert echo == ts
 
-  def kline_recv(self, bus=2):
-    msg = self.kline_ll_recv(2, bus=bus)
-    msg += self.kline_ll_recv(ord(msg[1]) - 2, bus=bus)
+  def kline_recv(self, bus=2, header_len=4):
+    # read header (last byte is length)
+    msg = self.kline_ll_recv(header_len, bus=bus)
+    # read data (add one byte to length for checksum)
+    msg += self.kline_ll_recv(msg[-1]+1, bus=bus)
     return msg
 
   def send_heartbeat(self):
@@ -664,3 +670,11 @@ class Panda(object):
   # ****************** Phone *****************
   def set_phone_power(self, enabled):
     self._handle.controlWrite(Panda.REQUEST_OUT, 0xb3, int(enabled), 0, b'')
+
+  # ************** Clock Source **************
+  def set_clock_source_mode(self, mode):
+    self._handle.controlWrite(Panda.REQUEST_OUT, 0xf5, int(mode), 0, b'')
+
+  # ****************** Siren *****************
+  def set_siren(self, enabled):
+    self._handle.controlWrite(Panda.REQUEST_OUT, 0xf6, int(enabled), 0, b'')

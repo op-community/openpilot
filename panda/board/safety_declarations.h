@@ -69,6 +69,7 @@ bool addr_safety_check(CAN_FIFOMailBox_TypeDef *to_push,
                        uint8_t (*get_checksum)(CAN_FIFOMailBox_TypeDef *to_push),
                        uint8_t (*compute_checksum)(CAN_FIFOMailBox_TypeDef *to_push),
                        uint8_t (*get_counter)(CAN_FIFOMailBox_TypeDef *to_push));
+void generic_rx_checks(bool stock_ecu_detected);
 void relay_malfunction_set(void);
 void relay_malfunction_reset(void);
 
@@ -95,11 +96,15 @@ bool controls_allowed = false;
 bool relay_malfunction = false;
 bool gas_interceptor_detected = false;
 int gas_interceptor_prev = 0;
+bool gas_pressed = false;
 bool gas_pressed_prev = false;
+bool brake_pressed = false;
 bool brake_pressed_prev = false;
 bool cruise_engaged_prev = false;
 float vehicle_speed = 0;
 bool vehicle_moving = false;
+bool hyundai_community_mdps_harness_present = true;
+
 
 // for safety modes with torque steering control
 int desired_torque_last = 0;       // last desired steer torque
@@ -127,9 +132,9 @@ struct sample_t angle_meas;         // last 3 steer angles
 // If using this flag, be aware that harder braking is more likely to lead to rear endings,
 //   and that alone this flag doesn't make braking compliant because there's also a time element.
 // See ISO 15622:2018 for more information.
-#define UNSAFE_RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX 8
+#define UNSAFE_RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX 7
 
-int unsafe_mode = 0;
+int unsafe_mode = 1;
 
 // time since safety mode has been changed
 uint32_t safety_mode_cnt = 0U;

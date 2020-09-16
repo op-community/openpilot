@@ -30,6 +30,7 @@ import threading
 from enum import Enum
 from common.basedir import PARAMS
 
+
 def mkdirs_exists_ok(path):
   try:
     os.makedirs(path)
@@ -52,13 +53,14 @@ keys = {
   "AccessToken": [TxType.CLEAR_ON_MANAGER_START],
   "AthenadPid": [TxType.PERSISTENT],
   "CalibrationParams": [TxType.PERSISTENT],
+  "CarBatteryCapacity": [TxType.PERSISTENT],
   "CarParams": [TxType.CLEAR_ON_MANAGER_START, TxType.CLEAR_ON_PANDA_DISCONNECT],
   "CarParamsCache": [TxType.CLEAR_ON_MANAGER_START, TxType.CLEAR_ON_PANDA_DISCONNECT],
   "CarVin": [TxType.CLEAR_ON_MANAGER_START, TxType.CLEAR_ON_PANDA_DISCONNECT],
   "CommunityFeaturesToggle": [TxType.PERSISTENT],
   "CompletedTrainingVersion": [TxType.PERSISTENT],
-  "ControlsParams": [TxType.PERSISTENT],
   "DisablePowerDown": [TxType.PERSISTENT],
+  "DisableUpdates": [TxType.PERSISTENT],
   "DoUninstall": [TxType.CLEAR_ON_MANAGER_START],
   "DongleId": [TxType.PERSISTENT],
   "GitBranch": [TxType.PERSISTENT],
@@ -69,7 +71,6 @@ keys = {
   "HasCompletedSetup": [TxType.PERSISTENT],
   "IsDriverViewEnabled": [TxType.CLEAR_ON_MANAGER_START],
   "IsLdwEnabled": [TxType.PERSISTENT],
-  "IsGeofenceEnabled": [TxType.PERSISTENT],
   "IsMetric": [TxType.PERSISTENT],
   "IsOffroad": [TxType.CLEAR_ON_MANAGER_START],
   "IsRHD": [TxType.PERSISTENT],
@@ -78,10 +79,8 @@ keys = {
   "IsUploadRawEnabled": [TxType.PERSISTENT],
   "LastAthenaPingTime": [TxType.PERSISTENT],
   "LastUpdateTime": [TxType.PERSISTENT],
-  "LimitSetSpeed": [TxType.PERSISTENT],
-  "LimitSetSpeedNeural": [TxType.PERSISTENT],
+  "LastUpdateException": [TxType.PERSISTENT],
   "LiveParameters": [TxType.PERSISTENT],
-  "LongitudinalControl": [TxType.PERSISTENT],
   "OpenpilotEnabledToggle": [TxType.PERSISTENT],
   "LaneChangeEnabled": [TxType.PERSISTENT],
   "PandaFirmware": [TxType.CLEAR_ON_MANAGER_START, TxType.CLEAR_ON_PANDA_DISCONNECT],
@@ -91,7 +90,6 @@ keys = {
   "RecordFront": [TxType.PERSISTENT],
   "ReleaseNotes": [TxType.PERSISTENT],
   "ShouldDoUpdate": [TxType.CLEAR_ON_MANAGER_START],
-  "SpeedLimitOffset": [TxType.PERSISTENT],
   "SubscriberInfo": [TxType.PERSISTENT],
   "TermsVersion": [TxType.PERSISTENT],
   "TrainingVersion": [TxType.PERSISTENT],
@@ -105,6 +103,8 @@ keys = {
   "Offroad_PandaFirmwareMismatch": [TxType.CLEAR_ON_MANAGER_START, TxType.CLEAR_ON_PANDA_DISCONNECT],
   "Offroad_InvalidTime": [TxType.CLEAR_ON_MANAGER_START],
   "Offroad_IsTakingSnapshot": [TxType.CLEAR_ON_MANAGER_START],
+  "Offroad_NeosUpdate": [TxType.CLEAR_ON_MANAGER_START],
+  "Offroad_UpdateFailed": [TxType.CLEAR_ON_MANAGER_START],
 }
 
 
@@ -143,6 +143,10 @@ class DBAccessor():
 
   def get(self, key):
     self._check_entered()
+
+    if self._vals is None:
+      return None
+
     try:
       return self._vals[key]
     except KeyError:
@@ -195,7 +199,7 @@ class DBReader(DBAccessor):
     finally:
       lock.release()
 
-  def __exit__(self, type, value, traceback):
+  def __exit__(self, exc_type, exc_value, traceback):
     pass
 
 
@@ -221,14 +225,14 @@ class DBWriter(DBAccessor):
       os.chmod(self._path, 0o777)
       self._lock = self._get_lock(True)
       self._vals = self._read_values_locked()
-    except:
+    except Exception:
       os.umask(self._prev_umask)
       self._prev_umask = None
       raise
 
     return self
 
-  def __exit__(self, type, value, traceback):
+  def __exit__(self, exc_type, exc_value, traceback):
     self._check_entered()
 
     try:
@@ -302,34 +306,37 @@ def read_db(params_path, key):
   except IOError:
     return None
 
+
 def write_db(params_path, key, value):
   if isinstance(value, str):
     value = value.encode('utf8')
 
   prev_umask = os.umask(0)
-  lock = FileLock(params_path+"/.lock", True)
+  lock = FileLock(params_path + "/.lock", True)
   lock.acquire()
 
   try:
-    tmp_path = tempfile.mktemp(prefix=".tmp", dir=params_path)
-    with open(tmp_path, "wb") as f:
+    tmp_path = tempfile.NamedTemporaryFile(mode="wb", prefix=".tmp", dir=params_path, delete=False)
+    with tmp_path as f:
       f.write(value)
       f.flush()
       os.fsync(f.fileno())
+    os.chmod(tmp_path.name, 0o666)
 
     path = "%s/d/%s" % (params_path, key)
-    os.rename(tmp_path, path)
+    os.rename(tmp_path.name, path)
     fsync_dir(os.path.dirname(path))
   finally:
     os.umask(prev_umask)
     lock.release()
+
 
 class Params():
   def __init__(self, db=PARAMS):
     self.db = db
 
     # create the database if it doesn't exist...
-    if not os.path.exists(self.db+"/d"):
+    if not os.path.exists(self.db + "/d"):
       with self.transaction(write=True):
         pass
 

@@ -11,7 +11,10 @@ class CarInterface(CarInterfaceBase):
     return float(accel) / 3.0
 
   @staticmethod
-  def get_params(candidate, fingerprint=gen_empty_fingerprint(), has_relay=False, car_fw=[]):
+  def get_params(candidate, fingerprint=None, has_relay=False, car_fw=None):
+    if fingerprint is None:
+      fingerprint = gen_empty_fingerprint()
+
     ret = CarInterfaceBase.get_std_params(candidate, fingerprint, has_relay)
     ret.carName = "chrysler"
     ret.safetyModel = car.CarParams.SafetyModel.chrysler
@@ -66,8 +69,6 @@ class CarInterface(CarInterfaceBase):
 
     # speeds
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
-
-    ret.buttonEvents = []
 
     # events
     events = self.create_common_events(ret, extra_gears=[car.CarState.GearShifter.low],
