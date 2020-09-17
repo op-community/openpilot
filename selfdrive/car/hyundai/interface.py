@@ -181,7 +181,11 @@ class CarInterface(CarInterfaceBase):
     ret.sccBus = 0 if 1057 in fingerprint[0] else 2 if 1057 in fingerprint[2] else -1
     ret.radarOffCan = (ret.sccBus == -1)
     ret.radarTimeStep = 0.02
-    ret.openpilotLongitudinalControl = not (ret.sccBus == 0)
+
+    if ret.sccBus == 0: #and vision op on(from settings toggle)
+      ret.radarDisablePossible = True
+
+    ret.openpilotLongitudinalControl =  ret.radarDisablePossible or not (ret.sccBus == 0)
 
     if candidate in [ CAR.HYUNDAI_GENESIS, CAR.IONIQ_EV_LTD, CAR.IONIQ_HEV, CAR.KONA_EV, CAR.KIA_SORENTO, CAR.SONATA_2019,
                       CAR.KIA_OPTIMA, CAR.VELOSTER, CAR.KIA_STINGER, CAR.GENESIS_G70, CAR.SONATA_HEV, CAR.SANTA_FE, CAR.GENESIS_G80,
@@ -193,7 +197,7 @@ class CarInterface(CarInterfaceBase):
                           CAR.KIA_CADENZA_HEV, CAR.GRANDEUR_HEV, CAR.KIA_NIRO_HEV, CAR.KONA_HEV]):
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunity
 
-    if ret.radarOffCan or (ret.sccBus == 2):
+    if ret.radarOffCan or (ret.sccBus == 2) or ret.radarDisablePossible:
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
 
     if ret.mdpsHarness:
@@ -221,6 +225,8 @@ class CarInterface(CarInterfaceBase):
 
     ret = self.CS.update(self.cp, self.cp2, self.cp_cam)
     ret.canValid = self.cp.can_valid and self.cp2.can_valid and self.cp_cam.can_valid
+
+
 
     # speeds
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
