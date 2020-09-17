@@ -20,6 +20,12 @@ int decel_not_ramping =0;
 
 const CanMsg HYUNDAI_COMMUNITY_TX_MSGS[] = {
   {832, 0, 8}, {832, 1, 8}, // LKAS11 Bus 0, 1
+  {1265, 0, 4}, {1265, 1, 4}, // CLU11 Bus 0, 1
+  {1157, 0, 4}, // LFAHDA_MFC Bus 0
+ };
+
+const CanMsg HYUNDAI_COMMUNITY_NONSCC_TX_MSGS[] = {
+  {832, 0, 8}, {832, 1, 8}, // LKAS11 Bus 0, 1
   {1265, 0, 4}, {1265, 1, 4}, {1265, 2, 4},// CLU11 Bus 0, 1, 2
   {1157, 0, 4}, // LFAHDA_MFC Bus 0
   {1056, 0, 8}, //   SCC11,  Bus 0
@@ -187,9 +193,17 @@ static int hyundai_community_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   int addr = GET_ADDR(to_send);
   int bus = GET_BUS(to_send);
 
-  if (!msg_allowed(to_send, HYUNDAI_COMMUNITY_TX_MSGS, sizeof(HYUNDAI_COMMUNITY_TX_MSGS)/sizeof(HYUNDAI_COMMUNITY_TX_MSGS[0]))) {
-    tx = 0;
+  if(hyundai_community_non_scc_car){
+    if (!msg_allowed(to_send, HYUNDAI_COMMUNITY_NONSCC_TX_MSGS, sizeof(HYUNDAI_COMMUNITY_NONSCC_TX_MSGS)/sizeof(HYUNDAI_COMMUNITY_NONSCC_TX_MSGS[0]))) {
+        tx = 0;
+    }
   }
+  else {
+    if (!msg_allowed(to_send, HYUNDAI_COMMUNITY_TX_MSGS, sizeof(HYUNDAI_COMMUNITY_TX_MSGS)/sizeof(HYUNDAI_COMMUNITY_TX_MSGS[0]))) {
+        tx = 0;
+    }
+  }
+
 
   if (relay_malfunction) {
     tx = 0;

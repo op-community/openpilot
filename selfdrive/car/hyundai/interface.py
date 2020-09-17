@@ -176,13 +176,13 @@ class CarInterface(CarInterfaceBase):
     ret.sasBus = 0 if 688 in fingerprint[0] else 1
     ret.fcaBus = 0 if 909 in fingerprint[0] else 2 if 909 in fingerprint[2] else -1
     ret.bsmAvailable = True if 1419 in fingerprint[0] else False
-    ret.lfaAvailable = True if 1157 in fingerprint[0] else False
+    ret.lfaAvailable = True if 1157 in fingerprint[2] else False
   
     ret.sccBus = 0 if 1057 in fingerprint[0] else 2 if 1057 in fingerprint[2] else -1
     ret.radarOffCan = (ret.sccBus == -1)
     ret.radarTimeStep = 0.02
 
-    if ret.sccBus == 0: #and vision op on(from settings toggle)
+    if ret.sccBus == 0: #and vision op on(from settings toggle) TODO
       ret.radarDisablePossible = True
 
     ret.openpilotLongitudinalControl =  ret.radarDisablePossible or not (ret.sccBus == 0)
@@ -225,8 +225,6 @@ class CarInterface(CarInterfaceBase):
 
     ret = self.CS.update(self.cp, self.cp2, self.cp_cam)
     ret.canValid = self.cp.can_valid and self.cp2.can_valid and self.cp_cam.can_valid
-
-
 
     # speeds
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False

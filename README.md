@@ -1,3 +1,36 @@
+
+XPS-FORK
+===========================================
+* This fork is maintained to support HKG community. The default branch tracks 
+the latest Master-ci updates.
+
+* This fork has support for MDPS Harness, Radar Harness(OP LONG), Non-SCC cars
+
+* Please feel free to add PR for support for non existing FP.
+
+* If you encounter "Car Unrecognized- Please verify fingerprint with the fork owner" 
+  message on the screen, please contact me directly on discord for help.
+
+* Even though the configuration is auto detected, there may be CAN ERROR in some cases, 
+please contact me directly on discord for help.
+
+* This branch uses a different tuning of PI controller for lat(steering). There is a
+non liner term added with respect to steering request which results in a smoother
+behavior.
+
+* This branch is also fine tuned to have smoother OP long(gas/brake) control.<sup>**</sup>
+
+
+
+<sup>**</sup> OP long requires one of the below modifications- 
+-Radar harness to move radar to CAN bus 2 (tested)
+-Non-SCC vehicle variant coded to accpet accel request ( non proven/ non tested)
+-Radar_disable UDS command (work in progress) ( non proven/ not tested)
+
+
+If you like my work don't hesitate to donate- [Paypal-Me](paypal.me/ARUNVARADARAJAN)
+
+
 [![](https://i.imgur.com/UelUjKAh.png)](#)
 
 Table of Contents
