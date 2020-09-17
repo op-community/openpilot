@@ -17,11 +17,21 @@ extern "C"{
 #include "sidebar.hpp"
 
 // TODO: this is also hardcoded in common/transformations/camera.py
+// TODO: choose based on frame input size
+#ifdef QCOM2
+const mat3 intrinsic_matrix = (mat3){{
+  2648.0, 0.0, 1928.0/2,
+  0.0, 2648.0, 1208.0/2,
+  0.0,   0.0,   1.0
+}};
+#else
 const mat3 intrinsic_matrix = (mat3){{
   910., 0., 582.,
   0., 910., 437.,
   0.,   0.,   1.
 }};
+#endif
+
 
 const uint8_t alert_colors[][4] = {
   [STATUS_OFFROAD] = {0x07, 0x23, 0x39, 0xf1},
@@ -364,13 +374,11 @@ static void ui_draw_world(UIState *s) {
   ui_draw_vision_lanes(s);
 
   // Draw lead indicators if openpilot is handling longitudinal
-  //if (s->longitudinal_control) {
     if (scene->lead_data[0].getStatus()) {
       draw_lead(s, scene->lead_data[0]);
     }
     if (scene->lead_data[1].getStatus() && (std::abs(scene->lead_data[0].getDRel() - scene->lead_data[1].getDRel()) > 1.0)) {
       draw_lead(s, scene->lead_data[1]);
-  //}
   }
   nvgRestore(s->vg);
 }
