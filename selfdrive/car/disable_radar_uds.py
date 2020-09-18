@@ -9,7 +9,7 @@ ADDR=0x7D0
 if __name__ == "__main__":
   panda = Panda()
   panda.set_safety_mode(Panda.SAFETY_ALLOUTPUT)
-  uds_client = UdsClient(panda, ADDR, 2, timeout=0.1, debug=True)
+  uds_client = UdsClient(panda, ADDR, bus=2, timeout=0.1, debug=True)
 
   #uds_client.diagnostic_session_control(SESSION_TYPE.DEFAULT)
   #uds_client.diagnostic_session_control(SESSION_TYPE.EXTENDED_DIAGNOSTIC)
