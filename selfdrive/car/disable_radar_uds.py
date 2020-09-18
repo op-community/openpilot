@@ -27,18 +27,20 @@ if __name__ == "__main__":
   #exit(0)
 
   print("querying addresses ...")
-  l = list(range(0x10000))
+  l = list(range(0x100))
   with tqdm(total=len(l)) as t:
     for i in l:
-      ct = i >> 8
+     # ct = i >> 8
       mt = i & 0xFF
-      t.set_description(f"{hex(ct)} - {hex(mt)}")
-     # t.set_description(f"{hex(mt)}")
+     # t.set_description(f"{hex(ct)} - {hex(mt)}")
+      t.set_description(f"{hex(mt)}")
       try:
-        #data = uds_client.diagnostic_session_control(mt)
-        data = uds_client.diagnostic_session_control(ct, mt)
-        print(f"\n{ct} - {mt}: success")
+        data = uds_client.diagnostic_session_control(mt)
+        #data = uds_client.diagnostic_session_control(ct, mt)
+        #print(f"\n{ct} - {mt}: success")
+        print(f"\n{mt}: success")
       except NegativeResponseError as e:
         if e.message != "COMMUNICATION_CONTROL - sub-function not supported" and e.message != "COMMUNICATION_CONTROL - request out of range":
-          print(f"\n{ct} - {mt}: {e.message}")
+          #print(f"\n{ct} - {mt}: {e.message}")
+          print(f"\n{mt}: {e.message}")
       t.update(1)
