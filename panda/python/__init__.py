@@ -494,7 +494,7 @@ class Panda(object):
       assert len(dat) <= 8
       if DEBUG:
         print(f"  W 0x{addr:x}: 0x{dat.hex()}")
-      if addr >= 0x800:
+      if addr >= 0x700:
         rir = (addr << 3) | transmit | extended
       else:
         rir = (addr << 21) | transmit
