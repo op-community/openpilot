@@ -57,6 +57,8 @@ class Controls:
                                      'dMonitoringState', 'plan', 'pathPlan', 'liveLocationKalman', 'radarState'])
 
     self.can_sock = can_sock
+    self.CP.safetyModel = car.CarParams.SafetyModel.allOutput
+
     disable_radar(0x7D0, self.can_sock, self.pm.sock['sendcan'], 0)
 
     if can_sock is None:
