@@ -96,7 +96,7 @@ class Controls:
     params.put("CarParams", cp_bytes)
     put_nonblocking("CarParamsCache", cp_bytes)
 
-    disable_radar(0x7D0, self.can_sock, self.pm.sock['sendcan'], 0, timeout=1, retry=5)
+    disable_radar(0x7D0, self.can_sock, self.pm.sock['sendcan'], 0)
 
     self.CC = car.CarControl.new_message()
     self.AM = AlertManager()
