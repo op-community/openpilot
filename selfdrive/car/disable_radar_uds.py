@@ -35,12 +35,12 @@ if __name__ == "__main__":
       t.set_description(f"{hex(ct)} - {hex(mt)}")
       #t.set_description(f"{hex(mt)}")
       try:
-        #data = uds_client.diagnostic_session_control(mt)
-        data = uds_client.diagnostic_session_control(ct, mt)
-        print(f"\n{ct} - {mt}: success")
-        #print(f"\n{mt}: success")
+        data = uds_client.diagnostic_session_control(mt)
+        #data = uds_client.diagnostic_session_control(ct, mt)
+        #print(f"\n{ct} - {mt}: success")
+        print(f"\n{mt}: success")
       except NegativeResponseError as e:
         if e.message != "diagnostic_session_control - sub-function not supported" and e.message != "diagnostic_session_control - request out of range":
-          print(f"\n{ct} - {mt}: {e.message}")
-          #print(f"\n{mt}: {e.message}")
+          #print(f"\n{ct} - {mt}: {e.message}")
+          print(f"\n{mt}: {e.message}")
       t.update(1)
