@@ -33,7 +33,7 @@ if __name__ == "__main__":
       ct = i >> 8
       mt = i & 0xFF
       t.set_description(f"{hex(ct)} - {hex(mt)}")
-      t.set_description(f"{hex(mt)}")
+     # t.set_description(f"{hex(mt)}")
       try:
         #data = uds_client.diagnostic_session_control(mt)
         data = uds_client.diagnostic_session_control(ct, mt)
