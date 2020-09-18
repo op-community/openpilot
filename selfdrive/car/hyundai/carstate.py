@@ -137,8 +137,6 @@ class CarState(CarStateBase):
     ret.brake = 0
     ret.brakePressed = cp.vl["TCS13"]['DriverBraking'] != 0
     self.brakeUnavailable = cp.vl["TCS13"]['ACCEnable'] == 3
-    if ret.brakePressed:
-       gjghh
 
     # TODO: Check this
     ret.brakeLights = bool(cp.vl["TCS13"]['BrakeLight'] or ret.brakePressed)
