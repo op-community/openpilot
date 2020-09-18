@@ -19,11 +19,11 @@ def disable_radar(logcan, sendcan, bus, i, timeout=0.1, retry=5, debug=True):
   for i in range(retry):
     try:
       # enter extended diagnostic session
-      query = IsoTpParallelQuery(sendcan, logcan, bus, [RADAR_ADDR], [EXT_DIAG_REQUEST], [EXT_DIAG_RESPONSE], debug=debug)
+      query = IsoTpParallelQuery(sendcan, logcan, bus, [RADAR_ADDR], [i], [EXT_DIAG_RESPONSE], debug=debug)
       for addr, dat in query.get_data(timeout).items():
         print("radar communication control disable tx/rx ...")
         # communication control disable tx and rx
-        query = IsoTpParallelQuery(sendcan, logcan, bus, [RADAR_ADDR], [COM_CONT_REQUEST], [COM_CONT_RESPONSE], debug=debug)
+        query = IsoTpParallelQuery(sendcan, logcan, bus, [RADAR_ADDR], [i], [COM_CONT_RESPONSE], debug=debug)
         query.get_data(0)
         return True
       print(f"radar disable retry ({i+1}) ...")
