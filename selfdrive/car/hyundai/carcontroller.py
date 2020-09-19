@@ -214,7 +214,7 @@ class CarController():
       #can_sends.append(create_scc7d0("02108500", 0))   # this disables RADAR
       #can_sends.append(create_scc7d0((b'\x02\x10\x85\x00\x00\x00\x00\x00'), 0))
 
-      if self.radarDisableOverlapTimer < 1
+      if self.radarDisableOverlapTimer < 1:
         can_sends.append(create_scc7d0((b'\x02\x10\x90\x00\x00\x00\x00\x00'), 0))
       can_sends.append(create_scc7d0((b'\x03\x28\x01\x00\x00\x00\x00\x00'), 0))
       self.radarDisableActivated = True
