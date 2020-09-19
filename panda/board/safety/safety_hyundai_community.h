@@ -32,8 +32,10 @@ const CanMsg HYUNDAI_COMMUNITY_NONSCC_TX_MSGS[] = {
   {1057, 0, 8}, //   SCC12,  Bus 0
   {1290, 0, 8}, //   SCC13,  Bus 0
   {905, 0, 8},  //   SCC14,  Bus 0
-  {1186, 0, 8},  //  4a2SCC, Bus 0
-  {2000, 0, 8}, {2000, 2, 8}   //   SCC_DIAG, Bus 0, 2
+  {1186, 0, 8}, //  4a2SCC, Bus 0
+  {1155, 0, 8}, //   FCA12, Bus 0
+  {909, 0, 8},  //   FCA11, Bus 0
+  {2000, 0, 8}  //   SCC_DIAG, Bus 0
  };
 
 // TODO: missing checksum for wheel speeds message,worst failure case is

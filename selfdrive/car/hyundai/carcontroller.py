@@ -5,7 +5,7 @@ from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.hyundai.carstate import GearShifter
 from selfdrive.car.hyundai.hyundaican import create_lkas11, create_clu11, create_lfa_mfa, \
                                              create_scc11, create_scc12, create_scc13, create_scc14, \
-                                             create_scc42a, create_scc7d0
+                                             create_scc42a, create_scc7d0, create_fca11, create_fca12
 from selfdrive.car.hyundai.values import Buttons, SteerLimitParams, CAR, FEATURES
 from opendbc.can.packer import CANPacker
 from selfdrive.config import Conversions as CV
@@ -87,7 +87,8 @@ class CarController():
     self.vdiff = 0
     self.resumebuttoncnt = 0
     self.lastresumeframe = 0
-    self.scc12cnt = 0
+    self.fca11alivecnt = self.fca11cnt13 = self.fca11supinc = self.scc12cnt = 0
+    self.fca11maxcnt = 0xD
     self.radarDisableActivated = False
     self.radarDisableResetTimer = 0
     self.radarDisableOverlapTimer = 0
@@ -211,14 +212,16 @@ class CarController():
       self.sendaccmode = enabled
 
     if frame % 50 == 0 and CS.CP.radarDisablePossible and self.radarDisableOverlapTimer < 10:
-      # this disables RADAR
-      can_sends.append(create_scc7d0((b'\x02\x10\x85\x00\x00\x00\x00\x00'), 0))
       self.radarDisableActivated = True
       self.radarDisableResetTimer = 0
       self.radarDisableOverlapTimer += 1
+      if self.radarDisableOverlapTimer > 1:
+        can_sends.append(create_scc7d0(b'\x02\x10\x85\x00\x00\x00\x00\x00'))  # this disables RADAR for
+        can_sends.append(create_scc7d0(b'\x02\x10\x03\x00\x00\x00\x00\x00'))
+        can_sends.append(create_scc7d0(b'\x03\x28\x03\x01\x00\x00\x00\x00'))
     elif self.radarDisableActivated and not CS.CP.radarDisablePossible:
-      # this enables RADAR
-      can_sends.append(create_scc7d0((b'\x02\x10\x90\x00\x00\x00\x00\x00'), 0))
+      can_sends.append(create_scc7d0(b'\x02\x10\x90\x00\x00\x00\x00\x00'))    # this enables RADAR
+      can_sends.append(create_scc7d0(b'\x03\x29\x03\x01\x00\x00\x00\x00'))
       self.radarDisableOverlapTimer = 0
       if frame % 50 == 0:
         self.radarDisableResetTimer += 1
@@ -229,13 +232,28 @@ class CarController():
         self.radarDisableResetTimer = 0
 
     if frame % 100 == 0 and CS.CP.radarDisablePossible:
-      can_sends.append(create_scc7d0((b'\x02\x3E\x00\x00\x00\x00\x00\x00'), 0))
+      can_sends.append(create_scc7d0(b'\x02\x3E\x00\x00\x00\x00\x00\x00'))
 
     # send scc to car if longcontrol enabled and SCC not on bus 0 or ont live
     if CS.CP.sccBus == 2 or not self.usestockscc or self.radarDisableActivated:
       if frame % 2 == 0:
         self.scc12cnt += 1
         self.scc12cnt %= 0xF
+        self.fca11supcnt = self.scc12cnt
+
+        if self.fca11alivecnt == 1:
+          self.fca11inc = 0
+          if self.fca11cnt13 == 3:
+            self.fca11maxcnt = 0x9
+            self.fca11cnt13 = 0
+          else:
+            self.fca11maxcnt = 0xD
+            self.fca11cnt13 += 1
+        else:
+          self.fca11inc += 4
+
+        self.fca11alivecnt = self.fca11maxcnt - self.fca11inc
+
         can_sends.append(create_scc11(self.packer, enabled,
                                       set_speed, self.lead_visible,
                                       self.gapsettingdance,
@@ -248,10 +266,13 @@ class CarController():
                                       CS.scc12, self.usestockscc, CS.CP.radarOffCan, self.scc12cnt))
 
         can_sends.append(create_scc14(self.packer, enabled, self.usestockscc, CS.out.stockAeb, apply_accel, CS.scc14))
-        can_sends.append(create_scc42a(self.packer))
+        can_sends.append(create_fca11(self.packer, CS.fca11, self.fca11alivecnt, self.fca11supcnt))
 
       if frame % 20 == 0:
         can_sends.append(create_scc13(self.packer, CS.scc13))
+        can_sends.append(create_fca12(self.packer))
+      if frame % 50 == 0:
+        can_sends.append(create_scc42a(self.packer))
 
     # 20 Hz LFA MFA message
     if frame % 5 == 0 and self.lfa_available:
