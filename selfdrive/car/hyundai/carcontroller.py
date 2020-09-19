@@ -87,7 +87,7 @@ class CarController():
     self.vdiff = 0
     self.resumebuttoncnt = 0
     self.lastresumeframe = 0
-    self.fca11alivecnt = self.fca11cnt13 = self.fca11supinc = self.scc12cnt = 0
+    self.fca11inc = self.fca11alivecnt = self.fca11cnt13 = self.fca11supinc = self.scc12cnt = 0
     self.fca11maxcnt = 0xD
     self.radarDisableActivated = False
     self.radarDisableResetTimer = 0
