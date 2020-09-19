@@ -215,7 +215,7 @@ class CarController():
       self.radarDisableActivated = True
       self.radarDisableResetTimer = 0
       self.radarDisableOverlapTimer += 1
-      if self.radarDisableOverlapTimer > 100:
+      if self.radarDisableOverlapTimer > 20:
         if frame % 51 == 0:
           can_sends.append(create_scc7d0(b'\x02\x10\x03\x00\x00\x00\x00\x00'))
         elif frame % 53 == 0:
