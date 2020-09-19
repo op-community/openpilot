@@ -91,6 +91,7 @@ class CarController():
     self.radarDisableActivated = False
     self.radarDisableResetTimer = 0
     self.radarDisableOverlapTimer = 0
+    self.sendaccmode = not CP.radarDisablePossible
 
   def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert,
              left_lane, right_lane, left_lane_depart, right_lane_depart, set_speed, lead_visible):
@@ -206,7 +207,8 @@ class CarController():
 
     set_speed *= speed_conv
 
-    self.sendaccmode = enabled
+    if enabled:
+      self.sendaccmode = enabled
 
     if frame % 50 == 0 and CS.CP.radarDisablePossible and self.radarDisableOverlapTimer < 10:
       can_sends.append(create_scc7d0("02108500", 0))   # this disables RADAR
