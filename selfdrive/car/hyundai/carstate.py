@@ -27,6 +27,8 @@ class CarState(CarStateBase):
     self.leftblinkerflashdebounce = 0
     self.rightblinkerflashdebounce = 0
     self.steeringPressedTimer = 0
+    self.radardisabletimer = 0
+    self.radarDisableActivated = False
 
   def update(self, cp, cp2, cp_cam):
     cp_mdps = cp2 if self.CP.mdpsHarness else cp
@@ -217,6 +219,17 @@ class CarState(CarStateBase):
       ret.leftBlindspot = cp.vl["LCA11"]["CF_Lca_IndLeft"] != 0
       ret.rightBlindspot = cp.vl["LCA11"]["CF_Lca_IndRight"] != 0
 
+    if self.CP.radarDisablePossible and not self.CP.radarOffCan:
+      if cp_scc.vl["SCC12"]['CR_VSM_Alive'] == 0:
+        self.radardisabletimer += 1
+        if self.radardisabletimer > 20:
+          self.radarDisableActivated = True
+        else:
+          self.radarDisableActivated = False
+      else:
+        self.radarDisableActivated = False
+        self.radardisabletimer = 0
+
     # save the entire LKAS11, CLU11, SCC12 and MDPS12
     self.lkas11 = copy.copy(cp_cam.vl["LKAS11"])
     self.clu11 = copy.copy(cp.vl["CLU11"])
@@ -303,6 +316,7 @@ class CarState(CarStateBase):
         ("ACCMode", "SCC12", 1),
         ("AEB_CmdAct", "SCC12", 0),
         ("CF_VSM_Warn", "SCC12", 0),
+        ("CR_VSM_Alive", "SCC12", 0),
       ]
       if not CP.radarDisablePossible:
         checks += [

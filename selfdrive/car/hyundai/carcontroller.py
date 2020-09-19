@@ -4,7 +4,8 @@ from cereal import car
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.hyundai.carstate import GearShifter
 from selfdrive.car.hyundai.hyundaican import create_lkas11, create_clu11, create_lfa_mfa, \
-                                             create_scc11, create_scc12, create_scc13, create_scc14, create_scc42a
+                                             create_scc11, create_scc12, create_scc13, create_scc14, \
+                                             create_scc42a, create_scc7d0
 from selfdrive.car.hyundai.values import Buttons, SteerLimitParams, CAR, FEATURES
 from opendbc.can.packer import CANPacker
 from selfdrive.config import Conversions as CV
@@ -200,23 +201,31 @@ class CarController():
 
     set_speed *= speed_conv
 
+    if frame % 50 == 0 and CS.CP.radarDisablePossible and not CS.radarDisableActivated:
+      can_sends.append(create_scc7d0("02108500"))
+    if frame % 100 == 0 and CS.CP.radarDisablePossible:
+      can_sends.append(create_scc7d0("023E0000"))
+
     # send scc to car if longcontrol enabled and SCC not on bus 0 or ont live
-    if (CS.CP.sccBus == 2 or not self.usestockscc) and frame % 2 == 0:
-      self.scc12cnt += 1
-      self.scc12cnt %= 0xF
-      can_sends.append(create_scc11(self.packer, enabled,
-                                    set_speed, self.lead_visible,
-                                    self.gapsettingdance,
-                                    CS.out.standstill, CS.scc11, self.usestockscc, CS.CP.radarOffCan, frame))
+    if CS.CP.sccBus == 2 or not self.usestockscc or CS.radarDisableActivated:
+      if frame % 2 == 0:
+        self.scc12cnt += 1
+        self.scc12cnt %= 0xF
+        can_sends.append(create_scc11(self.packer, enabled,
+                                      set_speed, self.lead_visible,
+                                      self.gapsettingdance,
+                                      CS.out.standstill, CS.scc11, self.usestockscc, CS.CP.radarOffCan, frame))
 
-      can_sends.append(create_scc12(self.packer, apply_accel, enabled,
-                                    self.acc_standstill, CS.out.gasPressed, CS.out.brakePressed,
-                                    CS.scc11["MainMode_ACC"], CS.out.stockAeb,
-                                    CS.scc12, self.usestockscc, CS.CP.radarOffCan, self.scc12cnt))
+        can_sends.append(create_scc12(self.packer, apply_accel, enabled,
+                                      self.acc_standstill, CS.out.gasPressed, CS.out.brakePressed,
+                                      CS.scc11["MainMode_ACC"], CS.out.stockAeb,
+                                      CS.scc12, self.usestockscc, CS.CP.radarOffCan, self.scc12cnt))
 
-      can_sends.append(create_scc13(self.packer, CS.scc13))
-      can_sends.append(create_scc14(self.packer, enabled, self.usestockscc, CS.out.stockAeb, CS.scc14))
-      can_sends.append(create_scc42a(self.packer))
+        can_sends.append(create_scc14(self.packer, enabled, self.usestockscc, CS.out.stockAeb, CS.scc14))
+        can_sends.append(create_scc42a(self.packer))
+
+      if frame % 20 == 0:
+        can_sends.append(create_scc13(self.packer, CS.scc13))
 
     # 20 Hz LFA MFA message
     if frame % 5 == 0 and self.lfa_available:

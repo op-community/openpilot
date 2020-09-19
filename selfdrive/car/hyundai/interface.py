@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from cereal import car
+from common.params import Params
 from selfdrive.config import Conversions as CV
 from selfdrive.car.hyundai.values import Ecu, ECU_FINGERPRINT, CAR, FINGERPRINTS, Buttons, HYBRID_VEH
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
@@ -182,10 +183,7 @@ class CarInterface(CarInterfaceBase):
     ret.radarOffCan = (ret.sccBus == -1)
     ret.radarTimeStep = 0.02
 
-    if ret.sccBus == 0: #and vision op on(from settings toggle) TODO
-      ret.radarDisablePossible = True
-
-    ret.openpilotLongitudinalControl =  ret.radarDisablePossible or not (ret.sccBus == 0)
+    ret.openpilotLongitudinalControl = not (ret.sccBus == 0)
 
     if candidate in [ CAR.HYUNDAI_GENESIS, CAR.IONIQ_EV_LTD, CAR.IONIQ_HEV, CAR.KONA_EV, CAR.KIA_SORENTO, CAR.SONATA_2019,
                       CAR.KIA_OPTIMA, CAR.VELOSTER, CAR.KIA_STINGER, CAR.GENESIS_G70, CAR.SONATA_HEV, CAR.SANTA_FE, CAR.GENESIS_G80,
@@ -228,6 +226,12 @@ class CarInterface(CarInterfaceBase):
 
     # speeds
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
+
+    params = Params()
+    self.CP.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
+
+    if self.CP.radarDisablePossible:
+      self.CP.openpilotLongitudinalControl = True
 
     events = self.create_common_events(ret)
 
