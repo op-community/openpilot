@@ -243,7 +243,7 @@ class CarController():
                                       CS.scc11["MainMode_ACC"], CS.out.stockAeb,
                                       CS.scc12, self.usestockscc, CS.CP.radarOffCan, self.scc12cnt))
 
-        can_sends.append(create_scc14(self.packer, enabled, self.usestockscc, CS.out.stockAeb, CS.scc14))
+        can_sends.append(create_scc14(self.packer, enabled, self.usestockscc, CS.out.stockAeb, apply_accel, CS.scc14))
         can_sends.append(create_scc42a(self.packer))
 
       if frame % 20 == 0:
