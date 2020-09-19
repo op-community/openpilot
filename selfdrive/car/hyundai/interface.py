@@ -214,6 +214,16 @@ class CarInterface(CarInterfaceBase):
 
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
 
+    params = Params()
+    ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
+
+    if ret.radarDisablePossible:
+      ret.openpilotLongitudinalControl = True
+      ret.sccBus = -1
+      ret.radarOffCan = True
+      ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
+      ret.fcaBus = -1
+
     return ret
 
   def update(self, c, can_strings):
