@@ -220,9 +220,9 @@ class CarState(CarStateBase):
       ret.rightBlindspot = cp.vl["LCA11"]["CF_Lca_IndRight"] != 0
 
     if self.CP.radarDisablePossible and not self.CP.radarOffCan:
-      if cp_scc.vl["SCC12"]['CR_VSM_Alive'] == 0:
+      if 1 ==1 :# cp_scc.vl["SCC12"]['CR_VSM_Alive'] == 0:
         self.radardisabletimer += 1
-        if self.radardisabletimer > 20:
+        if self.radardisabletimer > 0:
           self.radarDisableActivated = True
         else:
           self.radarDisableActivated = False
