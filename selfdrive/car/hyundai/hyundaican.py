@@ -180,6 +180,6 @@ def create_scc42a(packer):
   return packer.make_can_msg("FRT_RADAR11", 0, values)
 
 def create_scc7d0(cmd, bus):
-  dat = bytes.fromhex(cmd)
-  return[2000, 0, dat, bus]
+  #dat = bytes.fromhex(cmd)
+  return[2000, 0, cmd, bus]
 
