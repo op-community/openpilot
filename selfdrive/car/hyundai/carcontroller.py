@@ -241,7 +241,7 @@ class CarController():
 
         can_sends.append(create_scc12(self.packer, apply_accel, enabled,
                                       self.acc_standstill, CS.out.gasPressed, CS.out.brakePressed,
-                                      CS.scc11["MainMode_ACC"], CS.out.stockAeb,
+                                      CS.out.stockAeb,
                                       CS.scc12, self.usestockscc, CS.CP.radarOffCan, self.scc12cnt))
 
         can_sends.append(create_scc14(self.packer, enabled, self.usestockscc, CS.out.stockAeb, apply_accel, CS.scc14))
