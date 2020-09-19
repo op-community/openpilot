@@ -217,11 +217,12 @@ class CarInterface(CarInterfaceBase):
     params = Params()
     ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
 
+    ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc # todo based on toggle
+
     if ret.radarDisablePossible:
       ret.openpilotLongitudinalControl = True
       ret.sccBus = -1
       ret.radarOffCan = True
-      ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
       ret.fcaBus = -1
 
     return ret
@@ -244,9 +245,7 @@ class CarInterface(CarInterfaceBase):
       self.CP.openpilotLongitudinalControl = True
       self.CP.sccBus = -1
       self.CP.radarOffCan = True
-      self.CP.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
-      if self.CP.fcaBus != -1:
-        self.CP.fcaBus = -1
+      self.CP.fcaBus = -1
 
     events = self.create_common_events(ret)
 

@@ -88,37 +88,30 @@ class CarController():
     self.resumebuttoncnt = 0
     self.lastresumeframe = 0
     self.scc12cnt = 0
+    self.radarDisableResetTimer = 0
+    self.radarDisableOverlapTimer = 0
 
   def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert,
              left_lane, right_lane, left_lane_depart, right_lane_depart, set_speed, lead_visible):
-
-    self.lfa_available = True if self.lfainFingerprint or self.car_fingerprint in FEATURES["send_lfa_mfa"] else False
-
-    self.high_steer_allowed = True if self.car_fingerprint in FEATURES["allow_high_steer"] else False
-
-    if lead_visible:
-      self.lead_visible = True
-      self.lead_debounce = 50
-    elif self.lead_debounce > 0:
-      self.lead_debounce -= 1
-    else:
-      self.lead_visible = lead_visible
 
     # gas and brake
     self.accel_lim_prev = self.accel_lim
     apply_accel = actuators.gas - actuators.brake
 
-    apply_accel, self.accel_steady = accel_hysteresis(apply_accel, self.accel_steady)
+    if not CS.out.gasPressed:
+      apply_accel, self.accel_steady = accel_hysteresis(apply_accel, self.accel_steady)
     apply_accel = clip(apply_accel * ACCEL_SCALE, ACCEL_MIN, ACCEL_MAX)
-    self.accel_lim = apply_accel
 
+    self.accel_lim = apply_accel
     apply_accel = accel_rate_limit(self.accel_lim, self.accel_lim_prev)
+
     # Steering Torque
     new_steer = actuators.steer * SteerLimitParams.STEER_MAX
     apply_steer = apply_std_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorque, SteerLimitParams)
     self.steer_rate_limited = new_steer != apply_steer
 
     # disable if steer angle reach 90 deg, otherwise mdps fault in some models
+    self.high_steer_allowed = True if self.car_fingerprint in FEATURES["allow_high_steer"] else False
     lkas_active = enabled and ((abs(CS.out.steeringAngle) < 90.) or self.high_steer_allowed)
 
     # fix for Genesis hard fault at low speed
@@ -166,7 +159,10 @@ class CarController():
     self.current_veh_speed = int(CS.out.vEgo * speed_conv)
 
     self.clu11_cnt = frame % 0x10
+
     can_sends = []
+
+    self.lfa_available = True if self.lfainFingerprint or self.car_fingerprint in FEATURES["send_lfa_mfa"] else False
 
     can_sends.append(create_lkas11(self.packer, frame, self.car_fingerprint, apply_steer, lkas_active,
                                    CS.lkas11, sys_warning, sys_state, enabled,
@@ -199,22 +195,48 @@ class CarController():
 
     self.acc_standstill = False #True if (enabled and not self.acc_paused and CS.out.standstill) else False
 
+    if lead_visible:
+      self.lead_visible = True
+      self.lead_debounce = 50
+    elif self.lead_debounce > 0:
+      self.lead_debounce -= 1
+    else:
+      self.lead_visible = lead_visible
+
     set_speed *= speed_conv
 
-    if frame % 50 == 0 and CS.CP.radarDisablePossible and not CS.radarDisableActivated:
-      can_sends.append(create_scc7d0("02108500"))
+    self.sendaccmode = 1
+
+    if frame % 50 == 0 and CS.CP.radarDisablePossible and self.radarDisableOverlapTimer < 2:
+      can_sends.append(create_scc7d0("02108500", CS.CP.sccBus))
+      self.radarDisableActivated = True
+      self.radarDisableResetTimer = 0
+      self.radarDisableOverlapTimer += 1
+      self.sendaccmode = 0
+    elif self.radarDisableActivated and not CS.CP.radarDisablePossible:
+      can_sends.append(create_scc7d0("02109000", CS.CP.sccBus))
+      self.radarDisableOverlapTimer = 0
+      if frame % 50 == 0:
+        self.radarDisableResetTimer += 1
+        if self.radarDisableResetTimer > 2:
+          self.radarDisableActivated = False
+      else:
+        self.radarDisableOverlapTimer = 0
+        self.radarDisableResetTimer = 0
+
     if frame % 100 == 0 and CS.CP.radarDisablePossible:
-      can_sends.append(create_scc7d0("023E0000"))
+      can_sends.append(create_scc7d0("023E0000", CS.CP.sccBus))
 
     # send scc to car if longcontrol enabled and SCC not on bus 0 or ont live
-    if CS.CP.sccBus == 2 or not self.usestockscc or CS.radarDisableActivated:
+    if CS.CP.sccBus == 2 or not self.usestockscc or self.radarDisableActivated:
       if frame % 2 == 0:
         self.scc12cnt += 1
         self.scc12cnt %= 0xF
         can_sends.append(create_scc11(self.packer, enabled,
                                       set_speed, self.lead_visible,
                                       self.gapsettingdance,
-                                      CS.out.standstill, CS.scc11, self.usestockscc, CS.CP.radarOffCan, frame))
+                                      CS.out.standstill, CS.scc11,
+                                      self.usestockscc, CS.CP.radarOffCan, frame, self.sendaccmode))
 
         can_sends.append(create_scc12(self.packer, apply_accel, enabled,
                                       self.acc_standstill, CS.out.gasPressed, CS.out.brakePressed,

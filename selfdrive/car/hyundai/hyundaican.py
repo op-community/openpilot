@@ -93,7 +93,8 @@ def create_lfa_mfa(packer, frame, enabled):
 
   return packer.make_can_msg("LFAHDA_MFC", 0, values)
 
-def create_scc11(packer, enabled, set_speed, lead_visible, gapsetting, standstill, scc11, usestockscc, nosccradar, frame):
+def create_scc11(packer, enabled, set_speed, lead_visible, gapsetting, standstill, scc11, usestockscc, nosccradar,
+                 frame, sendaccmode):
   values = scc11
 
   if not usestockscc:
@@ -107,7 +108,7 @@ def create_scc11(packer, enabled, set_speed, lead_visible, gapsetting, standstil
     values["ACC_ObjStatus"] = lead_visible
 
     if nosccradar:
-      values["MainMode_ACC"] = 1
+      values["MainMode_ACC"] = sendaccmode
       values["AliveCounterACC"] = frame // 2 % 0x10
   elif nosccradar:
     values["AliveCounterACC"] = frame // 2 % 0x10
@@ -119,7 +120,7 @@ def create_scc12(packer, apply_accel, enabled, standstill, gaspressed, brakepres
   values = scc12
 
   if not usestockscc and not aebcmdact:
-    if enabled and cruise_on and not brakepressed:
+    if enabled and (cruise_on or nosccradar) and not brakepressed:
       values["ACCMode"] = 2 if gaspressed else 1
       if apply_accel < -0.5:
         values["StopReq"] = standstill
@@ -149,15 +150,26 @@ def create_scc13(packer, scc13):
   values = scc13
   return packer.make_can_msg("SCC13", 0, values)
 
-def create_scc14(packer, enabled, usestockscc, aebcmdact, scc14):
+def create_scc14(packer, enabled, usestockscc, aebcmdact, accel, scc14):
   values = scc14
   if not usestockscc and not aebcmdact:
     if enabled:
-      values["JerkUpperLimit"] = 3.2
-      values["JerkLowerLimit"] = 0.1
       values["SCCMode"] = 1
-      values["ComfortBandUpper"] = 0.24
-      values["ComfortBandLower"] = 0.24
+      if accel > 0.1:
+        values["JerkUpperLimit"] = 1.2
+        values["JerkLowerLimit"] = 10.
+        values["ComfortBandUpper"] = 0.
+        values["ComfortBandLower"] = 0.
+      elif accel < -0.1:
+        values["JerkUpperLimit"] = .5
+        values["JerkLowerLimit"] = 30.
+        values["ComfortBandUpper"] = 0.
+        values["ComfortBandLower"] = 0.
+      else:
+        values["JerkUpperLimit"] = .5
+        values["JerkLowerLimit"] = 1.
+        values["ComfortBandUpper"] = 5.
+        values["ComfortBandLower"] = 1.
 
   return packer.make_can_msg("SCC14", 0, values)
 
@@ -167,7 +179,7 @@ def create_scc42a(packer):
   }
   return packer.make_can_msg("FRT_RADAR11", 0, values)
 
-def create_scc7d0(cmd):
+def create_scc7d0(cmd, bus):
   dat = bytes.fromhex(cmd)
-  return[2000, 0, dat, 0]
+  return[2000, 0, dat, bus]
 
