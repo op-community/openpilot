@@ -88,6 +88,7 @@ class CarController():
     self.resumebuttoncnt = 0
     self.lastresumeframe = 0
     self.scc12cnt = 0
+    self.radarDisableActivated = False
     self.radarDisableResetTimer = 0
     self.radarDisableOverlapTimer = 0
 
@@ -207,7 +208,7 @@ class CarController():
 
     self.sendaccmode = 1
 
-    if frame % 50 == 0 and CS.CP.radarDisablePossible and self.radarDisableOverlapTimer < 2:
+    if frame % 50 == 0 and CS.CP.radarDisablePossible and self.radarDisableOverlapTimer < 6:
       can_sends.append(create_scc7d0("02108500", 0))   # this disables RADAR
       self.radarDisableActivated = True
       self.radarDisableResetTimer = 0
