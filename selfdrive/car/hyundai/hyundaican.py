@@ -195,6 +195,6 @@ def create_fca11(packer, fca11, fca11cnt, fca11supcnt):
 def create_fca12(packer):
   values = {
     "FCA_USM": 3,
-    "FCA_DrvSetState": 2
+    "FCA_DrvSetState": 2,
   }
   return packer.make_can_msg("FCA12", 0, values)
