@@ -238,15 +238,6 @@ class CarInterface(CarInterfaceBase):
     # speeds
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
 
-    params = Params()
-    self.CP.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
-
-    if self.CP.radarDisablePossible:
-      self.CP.openpilotLongitudinalControl = True
-      self.CP.sccBus = -1
-      self.CP.radarOffCan = True
-      self.CP.fcaBus = -1
-
     events = self.create_common_events(ret)
 
     self.CP.enableCruise = (not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
