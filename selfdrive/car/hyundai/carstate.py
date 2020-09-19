@@ -318,18 +318,16 @@ class CarState(CarStateBase):
         ("CF_VSM_Warn", "SCC12", 0),
         ("CR_VSM_Alive", "SCC12", 0),
       ]
-      if not CP.radarDisablePossible:
-        checks += [
-          ("SCC11", 50),
-          ("SCC12", 50),
-        ]
+      checks += [
+        ("SCC11", 50),
+        ("SCC12", 50),
+      ]
     if CP.fcaBus == 0:
       signals += [
         ("FCA_CmdAct", "FCA11", 0),
         ("CF_VSM_Warn", "FCA11", 0),
       ]
-      if not CP.radarDisablePossible:
-        checks += [("FCA11", 50)]
+      checks += [("FCA11", 50)]
 
     if not CP.mdpsHarness:
       signals += [

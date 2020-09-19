@@ -195,7 +195,7 @@ class CarInterface(CarInterfaceBase):
                           CAR.KIA_CADENZA_HEV, CAR.GRANDEUR_HEV, CAR.KIA_NIRO_HEV, CAR.KONA_HEV]):
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunity
 
-    if ret.radarOffCan or (ret.sccBus == 2) or ret.radarDisablePossible:
+    if ret.radarOffCan or (ret.sccBus == 2):
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
 
     if ret.mdpsHarness:
@@ -232,6 +232,11 @@ class CarInterface(CarInterfaceBase):
 
     if self.CP.radarDisablePossible:
       self.CP.openpilotLongitudinalControl = True
+      self.CP.sccBus = -1
+      self.CP.radarOffCan = True
+      self.CP.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
+      if self.CP.fcaBus != -1:
+        self.CP.fcaBus = -1
 
     events = self.create_common_events(ret)
 
