@@ -88,6 +88,7 @@ class CarController():
     self.resumebuttoncnt = 0
     self.lastresumeframe = 0
     self.fca11supcnt = self.fca11inc = self.fca11alivecnt = self.fca11cnt13 = self.scc11cnt = self.scc12cnt = 0
+    self.counter_init = False
     self.fca11maxcnt = 0xD
     self.radarDisableActivated = False
     self.radarDisableResetTimer = 0
@@ -244,7 +245,7 @@ class CarController():
       self.objdiststat = 0
 
     # send scc to car if longcontrol enabled and SCC not on bus 0 or ont live
-    if CS.CP.sccBus == 2 or not self.usestockscc or self.radarDisableActivated:
+    if (CS.CP.sccBus == 2 or not self.usestockscc or self.radarDisableActivated) and self.counter_init:
       if frame % 2 == 0:
         self.scc12cnt += 1
         self.scc12cnt %= 0xF
@@ -288,6 +289,7 @@ class CarController():
       if frame % 50 == 0:
         can_sends.append(create_scc42a(self.packer))
     else:
+      self.counter_init = True
       self.scc12cnt = CS.scc12["CR_VSM_Alive"]
       self.scc11cnt = CS.scc11["AliveCounterACC"]
       self.fca11alivecnt = CS.fca11["CR_FCA_Alive"]
