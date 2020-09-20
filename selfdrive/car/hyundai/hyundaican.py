@@ -133,7 +133,6 @@ def create_scc12(packer, apply_accel, enabled, standstill, gaspressed, brakepres
 
     if nosccradar:
       values["CR_VSM_Alive"] = cnt
-      values["ACCMode"] = 1 if enabled else 0
 
     values["CR_VSM_ChkSum"] = 0
     dat = packer.make_can_msg("SCC12", 0, values)[2]
@@ -150,12 +149,12 @@ def create_scc13(packer, scc13):
   values = scc13
   return packer.make_can_msg("SCC13", 0, values)
 
-def create_scc14(packer, enabled, usestockscc, aebcmdact, accel, scc14):
+def create_scc14(packer, enabled, usestockscc, aebcmdact, accel, scc14, objgap, gaspressed):
   values = scc14
   if not usestockscc and not aebcmdact:
     if enabled:
-      values["ACCMode"] = 1
-      values["ObjGap"] = 1
+      values["ACCMode"] = 2 if gaspressed else 1
+      values["ObjGap"] = objgap
       if accel > 0.1:
         values["JerkUpperLimit"] = 1.2
         values["JerkLowerLimit"] = 10.

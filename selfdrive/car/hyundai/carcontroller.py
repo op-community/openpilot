@@ -95,7 +95,7 @@ class CarController():
     self.sendaccmode = not CP.radarDisablePossible
 
   def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert,
-             left_lane, right_lane, left_lane_depart, right_lane_depart, set_speed, lead_visible):
+             left_lane, right_lane, left_lane_depart, right_lane_depart, set_speed, lead_visible, lead_dist):
 
     # gas and brake
     self.accel_lim_prev = self.accel_lim
@@ -237,6 +237,12 @@ class CarController():
     if frame % 100 == 0 and CS.CP.radarDisablePossible:
       can_sends.append(create_scc7d0(b'\x02\x3E\x00\x00\x00\x00\x00\x00'))
 
+    if self.lead_visible:
+      self.objdiststat = 1 if lead_dist < 25 else 2 if lead_dist < 40 else \
+                         3 if lead_dist < 60 else 4 if lead_dist < 80 else 5
+    else:
+      self.objdiststat = 0
+
     # send scc to car if longcontrol enabled and SCC not on bus 0 or ont live
     if CS.CP.sccBus == 2 or not self.usestockscc or self.radarDisableActivated:
       if frame % 2 == 0:
@@ -268,7 +274,8 @@ class CarController():
                                       CS.out.stockAeb,
                                       CS.scc12, self.usestockscc, CS.CP.radarOffCan, self.scc12cnt))
 
-        can_sends.append(create_scc14(self.packer, enabled, self.usestockscc, CS.out.stockAeb, apply_accel, CS.scc14))
+        can_sends.append(create_scc14(self.packer, enabled, self.usestockscc, CS.out.stockAeb, apply_accel,
+                                      CS.scc14, self.objdiststat, CS.out.gasPressed))
 
         can_sends.append(create_fca11(self.packer, CS.fca11, self.fca11alivecnt, self.fca11supcnt))
 
