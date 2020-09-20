@@ -87,7 +87,7 @@ class CarController():
     self.vdiff = 0
     self.resumebuttoncnt = 0
     self.lastresumeframe = 0
-    self.fca11inc = self.fca11alivecnt = self.fca11cnt13 = self.scc12cnt = 0
+    self.fca11supcnt = self.fca11inc = self.fca11alivecnt = self.fca11cnt13 = self.scc11cnt = self.scc12cnt = 0
     self.fca11maxcnt = 0xD
     self.radarDisableActivated = False
     self.radarDisableResetTimer = 0
@@ -211,16 +211,16 @@ class CarController():
     if enabled:
       self.sendaccmode = enabled
 
-    if CS.CP.radarDisablePossible and self.radarDisableOverlapTimer < 500:
+    if CS.CP.radarDisablePossible and self.radarDisableOverlapTimer < 200:
       self.radarDisableActivated = True
       self.radarDisableResetTimer = 0
       self.radarDisableOverlapTimer += 1
-      if self.radarDisableOverlapTimer > 20:
+      if self.radarDisableOverlapTimer > 4:
         if frame % 51 == 0:
           can_sends.append(create_scc7d0(b'\x02\x10\x03\x00\x00\x00\x00\x00'))
         elif frame % 53 == 0:
           can_sends.append(create_scc7d0(b'\x03\x28\x03\x01\x00\x00\x00\x00'))
-        elif frame % 49 == 0:
+        elif frame % 19 == 0:
           can_sends.append(create_scc7d0(b'\x02\x10\x85\x00\x00\x00\x00\x00'))  # this disables RADAR for
     elif self.radarDisableActivated and not CS.CP.radarDisablePossible:
       can_sends.append(create_scc7d0(b'\x02\x10\x90\x00\x00\x00\x00\x00'))    # this enables RADAR
@@ -230,11 +230,11 @@ class CarController():
         self.radarDisableResetTimer += 1
         if self.radarDisableResetTimer > 2:
           self.radarDisableActivated = False
-      else:
-        self.radarDisableOverlapTimer = 0
-        self.radarDisableResetTimer = 0
+    else:
+      self.radarDisableOverlapTimer = 0
+      self.radarDisableResetTimer = 0
 
-    if frame % 100 == 0 and CS.CP.radarDisablePossible:
+    if frame % 50 == 0 and CS.CP.radarDisablePossible:
       can_sends.append(create_scc7d0(b'\x02\x3E\x00\x00\x00\x00\x00\x00'))
 
     if self.lead_visible:
@@ -248,7 +248,10 @@ class CarController():
       if frame % 2 == 0:
         self.scc12cnt += 1
         self.scc12cnt %= 0xF
-        self.fca11supcnt = self.scc12cnt
+        self.scc11cnt += 1
+        self.scc11cnt %= 0x10
+        self.fca11supcnt += 1
+        self.fca11supcnt %= 0xF
 
         if self.fca11alivecnt == 1:
           self.fca11inc = 0
@@ -267,7 +270,7 @@ class CarController():
                                       set_speed, self.lead_visible,
                                       self.gapsettingdance,
                                       CS.out.standstill, CS.scc11,
-                                      self.usestockscc, CS.CP.radarOffCan, frame, self.sendaccmode))
+                                      self.usestockscc, CS.CP.radarOffCan, self.scc11cnt, self.sendaccmode))
 
         can_sends.append(create_scc12(self.packer, apply_accel, enabled,
                                       self.acc_standstill, CS.out.gasPressed, CS.out.brakePressed,
@@ -284,6 +287,11 @@ class CarController():
         can_sends.append(create_fca12(self.packer))
       if frame % 50 == 0:
         can_sends.append(create_scc42a(self.packer))
+    else:
+      self.scc12cnt = CS.scc12["CR_VSM_Alive"]
+      self.scc11cnt = CS.scc11["AliveCounterACC"]
+      self.fca11alivecnt = CS.fca11["CR_FCA_Alive"]
+      self.fca11supcnt = CS.fca11["Supplemental_Counter"]
 
     # 20 Hz LFA MFA message
     if frame % 5 == 0 and self.lfa_available:

@@ -94,7 +94,7 @@ def create_lfa_mfa(packer, frame, enabled):
   return packer.make_can_msg("LFAHDA_MFC", 0, values)
 
 def create_scc11(packer, enabled, set_speed, lead_visible, gapsetting, standstill, scc11, usestockscc, nosccradar,
-                 frame, sendaccmode):
+                 scc11cnt, sendaccmode):
   values = scc11
 
   if not usestockscc:
@@ -109,9 +109,9 @@ def create_scc11(packer, enabled, set_speed, lead_visible, gapsetting, standstil
 
     if nosccradar:
       values["MainMode_ACC"] = sendaccmode
-      values["AliveCounterACC"] = frame // 2 % 0x10
+      values["AliveCounterACC"] = scc11cnt
   elif nosccradar:
-    values["AliveCounterACC"] = frame // 2 % 0x10
+    values["AliveCounterACC"] = scc11cnt
 
   return packer.make_can_msg("SCC11", 0, values)
 
