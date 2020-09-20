@@ -27,7 +27,7 @@ class CarInterface(CarInterfaceBase):
     ret.safetyModel = car.CarParams.SafetyModel.hyundai
 
     # Most Hyundai car ports are community features for now
-    ret.communityFeature = candidate not in [CAR.SONATA]
+    ret.communityFeature = candidate not in [CAR.SONATA, CAR.PALISADE]
 
     ret.steerActuatorDelay = 0.3  # Default delay
     ret.steerRateCost = 0.45
@@ -217,10 +217,9 @@ class CarInterface(CarInterfaceBase):
     params = Params()
     ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
 
-    ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc # todo based on toggle
-
     if ret.radarDisablePossible:
       ret.openpilotLongitudinalControl = True
+      ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc # todo based on toggle
       ret.sccBus = -1
       ret.radarOffCan = True
       ret.fcaBus = -1
@@ -285,8 +284,11 @@ class CarInterface(CarInterfaceBase):
 
     # handle button press
     for b in self.buttonEvents:
-      if b.type in [ButtonType.accelCruise, ButtonType.decelCruise] and b.pressed \
+      if b.type == ButtonType.decelCruise and b.pressed \
               and (not ret.brakePressed or ret.standstill) and (self.CP.radarOffCan or not self.CP.enableCruise):
+        events.add(EventName.buttonEnable)
+      if b.type == ButtonType.accelCruise and b.pressed \
+              and (ret.gasPressed or ret.standstill) and (self.CP.radarOffCan or not self.CP.enableCruise):
         events.add(EventName.buttonEnable)
       if b.type == ButtonType.cancel and b.pressed:
         events.add(EventName.buttonCancel)
