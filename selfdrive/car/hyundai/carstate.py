@@ -301,6 +301,7 @@ class CarState(CarStateBase):
         ("ACC_ObjDist", "SCC11", 0),
         ("ObjValid", "SCC11", 0),
         ("ACC_ObjRelSpd", "SCC11", 0),
+        ("AliveCounterACC", "SCC11", 0),
         ("ACCMode", "SCC12", 1),
         ("AEB_CmdAct", "SCC12", 0),
         ("CF_VSM_Warn", "SCC12", 0),
