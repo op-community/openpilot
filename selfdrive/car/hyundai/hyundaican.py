@@ -179,9 +179,6 @@ def create_scc42a(packer):
   }
   return packer.make_can_msg("FRT_RADAR11", 0, values)
 
-def create_scc7d0(cmd):
-  return[2000, 0, cmd, 0]
-
 def create_fca11(packer, fca11, fca11cnt, fca11supcnt):
   values = fca11
   values["CR_FCA_Alive"] = fca11cnt
@@ -197,3 +194,9 @@ def create_fca12(packer):
     "FCA_DrvSetState": 2,
   }
   return packer.make_can_msg("FCA12", 0, values)
+
+def create_scc7d0(cmd):
+  return[2000, 0, cmd, 0]
+
+def create_esc7d1(cmd):
+  return[2001, 0, cmd, 0]
