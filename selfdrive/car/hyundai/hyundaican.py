@@ -198,5 +198,3 @@ def create_fca12(packer):
 def create_scc7d0(cmd):
   return[2000, 0, cmd, 0]
 
-def create_esc7d1(cmd):
-  return[2001, 0, cmd, 0]

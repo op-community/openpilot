@@ -5,7 +5,7 @@ from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.hyundai.carstate import GearShifter
 from selfdrive.car.hyundai.hyundaican import create_lkas11, create_clu11, create_lfa_mfa, \
                                              create_scc11, create_scc12, create_scc13, create_scc14, \
-                                             create_scc42a, create_scc7d0, create_fca11, create_fca12, create_esc7d1
+                                             create_scc42a, create_scc7d0, create_fca11, create_fca12
 from selfdrive.car.hyundai.values import Buttons, SteerLimitParams, CAR, FEATURES
 from opendbc.can.packer import CANPacker
 from selfdrive.config import Conversions as CV
@@ -236,16 +236,6 @@ class CarController():
 
     if frame % 100 == 0 and CS.CP.radarDisablePossible:
       can_sends.append(create_scc7d0(b'\x02\x3E\x00\x00\x00\x00\x00\x00'))
-
-    if CS.out.brakePressed and CS.brakeUnavailable:
-      if frame % 49 == 0:
-        can_sends.append(create_esc7d1(b'\x02\x10\x90\x00\x00\x00\x00\x00'))
-      if frame % 50 == 0:
-        can_sends.append(create_esc7d1(b'\x04\x18\x00\xFF\x00\x00\x00\x00'))
-      if frame % 51 == 0:
-        can_sends.append(create_esc7d1(b'\x01\x20\x00\x00\x00\x00\x00\x00'))
-      if frame % 52 == 0:
-        can_sends.append(create_esc7d1(b'\x03\x14\xFF\x00\x00\x00\x00\x00'))
 
     if self.lead_visible:
       self.objdiststat = 1 if lead_dist < 25 else 2 if lead_dist < 40 else \
