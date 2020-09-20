@@ -20,12 +20,14 @@ behavior.
 
 * This branch is also fine tuned to have smoother OP long(gas/brake) control.<sup>**</sup>
 
-
+* !DANGER! OP long with radar disable method will disable AEB/FCA completely.
+___________________________________________________________
 
 <sup>**</sup> OP long requires one of the below modifications- 
 -Radar harness to move radar to CAN bus 2 (tested)
 -Non-SCC vehicle variant coded to accpet accel request ( non proven/ non tested)
--Radar_disable UDS command (work in progress) ( non proven/ not tested)
+-Radar_disable UDS command (tested but not recommended), the feature is hardcoded to False for safety
+
 
 
 If you like my work don't hesitate to donate- [Paypal-Me](paypal.me/ARUNVARADARAJAN)
