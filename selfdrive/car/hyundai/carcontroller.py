@@ -212,30 +212,38 @@ class CarController():
     if enabled:
       self.sendaccmode = enabled
 
-    if CS.CP.radarDisablePossible and self.radarDisableOverlapTimer < 200:
-      self.radarDisableActivated = True
-      self.radarDisableResetTimer = 0
+    if CS.CP.radarDisablePossible:
       self.radarDisableOverlapTimer += 1
-      if self.radarDisableOverlapTimer > 4:
-        if frame % 51 == 0:
-          can_sends.append(create_scc7d0(b'\x02\x10\x03\x00\x00\x00\x00\x00'))
-        elif frame % 53 == 0:
-          can_sends.append(create_scc7d0(b'\x03\x28\x03\x01\x00\x00\x00\x00'))
-        elif frame % 19 == 0:
-          can_sends.append(create_scc7d0(b'\x02\x10\x85\x00\x00\x00\x00\x00'))  # this disables RADAR for
-    elif self.radarDisableActivated and not CS.CP.radarDisablePossible:
-      can_sends.append(create_scc7d0(b'\x02\x10\x90\x00\x00\x00\x00\x00'))    # this enables RADAR
+      self.radarDisableResetTimer = 0
+      if self.radarDisableOverlapTimer >= 30:
+        self.radarDisableActivated = True
+        if 200 > self.radarDisableOverlapTimer > 36:
+          if frame % 41 == 0 or self.radarDisableOverlapTimer == 37:
+            can_sends.append(create_scc7d0(b'\x02\x10\x03\x00\x00\x00\x00\x00'))
+          elif frame % 43 == 0 or self.radarDisableOverlapTimer == 37:
+            can_sends.append(create_scc7d0(b'\x03\x28\x03\x01\x00\x00\x00\x00'))
+          elif frame % 19 == 0 or self.radarDisableOverlapTimer == 37:
+            can_sends.append(create_scc7d0(b'\x02\x10\x85\x00\x00\x00\x00\x00'))  # this disables RADAR for
+      else:
+        self.counter_init = False
+        can_sends.append(create_scc7d0(b'\x02\x10\x90\x00\x00\x00\x00\x00'))  # this enables RADAR
+        can_sends.append(create_scc7d0(b'\x03\x29\x03\x01\x00\x00\x00\x00'))
+    elif self.radarDisableActivated:
+      can_sends.append(create_scc7d0(b'\x02\x10\x90\x00\x00\x00\x00\x00'))  # this enables RADAR
       can_sends.append(create_scc7d0(b'\x03\x29\x03\x01\x00\x00\x00\x00'))
       self.radarDisableOverlapTimer = 0
       if frame % 50 == 0:
         self.radarDisableResetTimer += 1
         if self.radarDisableResetTimer > 2:
           self.radarDisableActivated = False
+          self.counter_init = True
     else:
+      self.counter_init = False
       self.radarDisableOverlapTimer = 0
       self.radarDisableResetTimer = 0
 
-    if frame % 50 == 0 and CS.CP.radarDisablePossible:
+    if (frame % 50 == 0 or self.radarDisableOverlapTimer == 37) and \
+            CS.CP.radarDisablePossible and self.radarDisableOverlapTimer >= 30:
       can_sends.append(create_scc7d0(b'\x02\x3E\x00\x00\x00\x00\x00\x00'))
 
     if self.lead_visible:
