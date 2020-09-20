@@ -292,8 +292,8 @@ class CarController():
       self.counter_init = True
       self.scc12cnt = CS.scc12["CR_VSM_Alive"]
       self.scc11cnt = CS.scc11["AliveCounterACC"]
-      self.fca11alivecnt = CS.fca11["CR_FCA_Alive"]
-      self.fca11supcnt = CS.fca11["Supplemental_Counter"]
+      self.fca11alivecnt = CS.fca11["CR_FCA_Alive"] if CS.CP.fcaBus != -1 else 0
+      self.fca11supcnt = CS.fca11["Supplemental_Counter"] if CS.CP.fcaBus != -1 else 0
 
     # 20 Hz LFA MFA message
     if frame % 5 == 0 and self.lfa_available:
