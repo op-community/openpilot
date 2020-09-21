@@ -251,7 +251,7 @@ class CarController():
       self.objdiststat = 0
 
     # send scc to car if longcontrol enabled and SCC not on bus 0 or ont live
-    if (CS.CP.sccBus == 2 or not self.usestockscc or self.radarDisableActivated) and self.counter_init and 1 == 0:
+    if (CS.CP.sccBus == 2 or not self.usestockscc or self.radarDisableActivated) and self.counter_init:
       if frame % 2 == 0:
         self.scc12cnt += 1
         self.scc12cnt %= 0xF

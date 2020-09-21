@@ -43,7 +43,7 @@ const CanMsg HYUNDAI_COMMUNITY_NONSCC_TX_MSGS[] = {
 AddrCheckStruct hyundai_community_rx_checks[] = {
   {.msg = {{902, 0, 8, .expected_timestep = 10000U}}},
   {.msg = {{916, 0, 8, .expected_timestep = 10000U}}},
-  {.msg = {{1057, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}}},
+//  {.msg = {{1057, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}}},
 };
 const int HYUNDAI_COMMUNITY_RX_CHECK_LEN = sizeof(hyundai_community_rx_checks) / sizeof(hyundai_community_rx_checks[0]);
 
@@ -186,6 +186,8 @@ static int hyundai_community_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   if ((addr == 1057) && (bus == 2) && (hyundai_community_non_scc_car)){
     aeb_cmd_act = (GET_BYTE(to_push, 6) & 0x40) != 0;
   }
+
+  controls_allowed = 1;
 
   return valid;
 }
