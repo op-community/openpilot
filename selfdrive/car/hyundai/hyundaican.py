@@ -153,7 +153,7 @@ def create_scc14(packer, enabled, usestockscc, aebcmdact, accel, scc14, objgap, 
   values = scc14
   if not usestockscc and not aebcmdact:
     if enabled:
-      values["ACCMode"] = 2 if gaspressed and (apply_accel > -0.2) else 1
+      values["ACCMode"] = 2 if gaspressed and (accel > -0.2) else 1
       values["ObjGap"] = objgap
       if accel > 0.1:
         values["JerkUpperLimit"] = 1.2
