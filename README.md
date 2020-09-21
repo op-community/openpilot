@@ -24,13 +24,13 @@ behavior.
 ___________________________________________________________
 
 <sup>**</sup> OP long requires one of the below modifications- 
-* -Radar harness to move radar to CAN bus 2 (tested)
-* -Non-SCC vehicle variant coded to accpet accel request ( non proven/ non tested)
-* -Radar_disable UDS command (tested but not recommended), the feature is hardcoded to False for safety
+-Radar harness to move radar to CAN bus 2 (tested)
+-Non-SCC vehicle variant coded to accpet accel request ( non proven/ non tested)
+-Radar_disable UDS command (tested but not recommended), the feature is hardcoded to False for safety
 
 
 
-If you like my work don't hesitate to donate- [Paypal-Me](paypal.me/ARUNVARADARAJAN)
+If you like my work don't hesitate to donate- [Paypal-Me](https://paypal.me/ARUNVARADARAJAN)
 
 
 [![](https://i.imgur.com/UelUjKAh.png)](#)
