@@ -40,7 +40,7 @@ def accel_rate_limit(accel_lim, prev_accel_lim):
     if accel_lim < prev_accel_lim:
       accel_lim = max(accel_lim, prev_accel_lim - 0.035)
     else:
-      accel_lim = min(accel_lim, prev_accel_lim + 0.035)
+      accel_lim = min(accel_lim, prev_accel_lim + 0.01)
 
   return accel_lim
 
