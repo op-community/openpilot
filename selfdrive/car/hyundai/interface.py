@@ -2,7 +2,7 @@
 from cereal import car
 from common.params import Params
 from selfdrive.config import Conversions as CV
-from selfdrive.car.hyundai.values import Ecu, ECU_FINGERPRINT, CAR, FINGERPRINTS, Buttons, HYBRID_VEH
+from selfdrive.car.hyundai.values import Ecu, ECU_FINGERPRINT, CAR, FINGERPRINTS, Buttons
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
 from selfdrive.car.interfaces import CarInterfaceBase
 
@@ -178,6 +178,11 @@ class CarInterface(CarInterfaceBase):
     ret.fcaBus = 0 if 909 in fingerprint[0] else 2 if 909 in fingerprint[2] else -1
     ret.bsmAvailable = True if 1419 in fingerprint[0] else False
     ret.lfaAvailable = True if 1157 in fingerprint[2] else False
+    ret.lvrAvailable = True if 871 in fingerprint[0] else False
+    ret.evgearAvailable = True if 882 in fingerprint[0] else False
+    ret.emsAvailable = True if 608 and 809 in fingerprint[0] else False
+    ret.clustergearAvailable = True if 1322 in fingerprint[0] else False
+    ret.tcugearAvailable = True if 274 in fingerprint[0] else False
   
     ret.sccBus = 0 if 1057 in fingerprint[0] else 2 if 1057 in fingerprint[2] else -1
     ret.radarOffCan = (ret.sccBus == -1)
@@ -218,11 +223,12 @@ class CarInterface(CarInterfaceBase):
     #ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
 
     if ret.radarDisablePossible or (1==1):
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = False
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc # todo based on toggle
       ret.sccBus = -1
       ret.radarOffCan = True
-      ret.fcaBus = -1
+      if ret.fcaBus == 0:
+        ret.fcaBus = -1
 
     return ret
 
@@ -288,7 +294,7 @@ class CarInterface(CarInterfaceBase):
               and (not ret.brakePressed or ret.standstill) and (self.CP.radarOffCan or not self.CP.enableCruise):
         events.add(EventName.buttonEnable)
       if b.type == ButtonType.accelCruise and b.pressed \
-              and (ret.gasPressed or (self.CC.setspeed > self.CC.clu11_speed - 2) or ret.standstill) \
+              and ((self.CC.setspeed > self.CC.clu11_speed - 2) or ret.standstill) \
               and (self.CP.radarOffCan or not self.CP.enableCruise):
         events.add(EventName.buttonEnable)
       if b.type == ButtonType.cancel and b.pressed:
