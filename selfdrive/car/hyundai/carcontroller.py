@@ -102,8 +102,7 @@ class CarController():
     self.accel_lim_prev = self.accel_lim
     apply_accel = actuators.gas - actuators.brake
 
-    if not CS.out.gasPressed:
-      apply_accel, self.accel_steady = accel_hysteresis(apply_accel, self.accel_steady)
+    apply_accel, self.accel_steady = accel_hysteresis(apply_accel, self.accel_steady)
     apply_accel = clip(apply_accel * ACCEL_SCALE, ACCEL_MIN, ACCEL_MAX)
 
     self.accel_lim = apply_accel
