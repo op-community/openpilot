@@ -222,6 +222,8 @@ class CarInterface(CarInterfaceBase):
     params = Params()
     #ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
 
+    ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
+
     if ret.radarDisablePossible:
       ret.openpilotLongitudinalControl = True
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc # todo based on toggle
