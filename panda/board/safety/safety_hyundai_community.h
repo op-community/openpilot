@@ -164,7 +164,6 @@ static int hyundai_community_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
       if (cruise_engaged == 4) {
         controls_allowed = 0;
       }
-      cruise_engaged_prev = cruise_engaged;
     }
 
     // sample wheel speed, averaging opposite corners
