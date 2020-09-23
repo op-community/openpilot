@@ -103,7 +103,6 @@ static uint8_t hyundai_community_compute_checksum(CAN_FIFOMailBox_TypeDef *to_pu
 static int hyundai_community_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
   bool valid;
-
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
