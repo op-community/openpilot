@@ -16,7 +16,7 @@ const int HYUNDAI_COMMUNITY_ISO_MIN_ACCEL = -350;       // -3.5 m/s2
 bool hyundai_community_non_scc_car = false;
 bool aeb_cmd_act = false;
 int prev_desired_accel = 0;
-int decel_not_ramping =0;
+int decel_not_ramping = 0;
 
 const CanMsg HYUNDAI_COMMUNITY_TX_MSGS[] = {
   {832, 0, 8}, {832, 1, 8},    // LKAS11 Bus 0, 1
