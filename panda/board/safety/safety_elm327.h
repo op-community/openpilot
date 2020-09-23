@@ -1,20 +1,3 @@
-hyundai_community_mdps_at_obd_harness_present = False;
-hyundai_community_mdps_at_obd_harness_confirmed_present = False;
-
-static int elm327_mdps_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
-  int bus = GET_BUS(to_push);
-  int addr = GET_ADDR(to_push);
-
- if (hyundai_community_mdps_harness_present && (bus == 1) && (addr == 593)) {
-    hyundai_community_mdps_at_obd_harness_present = True;
-  }
-
-  if (hyundai_community_mdps_at_obd_harness_present && (bus == 1) && (addr == 897)) {
-    hyundai_community_mdps_at_obd_harness_confirmed_present = True;
-  }
-  return true;
-}
-
 static int elm327_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
   int tx = 1;
@@ -53,7 +36,6 @@ static int elm327_tx_lin_hook(int lin_num, uint8_t *data, int len) {
 const safety_hooks elm327_hooks = {
   .init = nooutput_init,
   .rx = default_rx_hook,
-  .rx = elm327_mdps_rx_hook,
   .tx = elm327_tx_hook,
   .tx_lin = elm327_tx_lin_hook,
   .fwd = default_fwd_hook,
