@@ -19,6 +19,7 @@ int default_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     if (!hyundai_community_mdps_at_obd_harness_confirmed_present) {
      current_board->set_can_mode(CAN_MODE_NORMAL);
     }
+  }
   return true;
 }
 
