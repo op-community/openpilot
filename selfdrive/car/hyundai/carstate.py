@@ -375,7 +375,7 @@ class CarState(CarStateBase):
         ("EMS16", 100),
       ]
 
-    if CP.clustergearAvailable and CP.carFingerprint in FEATURES["use_cluster_gears"]:
+    if CP.carFingerprint in FEATURES["use_cluster_gears"]:
       signals += [
         ("CF_Clu_InhibitD", "CLU15", 0),
         ("CF_Clu_InhibitP", "CLU15", 0),
@@ -383,7 +383,7 @@ class CarState(CarStateBase):
         ("CF_Clu_InhibitR", "CLU15", 0),
       ]
       checks += [("CLU15", 5)]
-    elif CP.tcugearAvailable and CP.carFingerprint in FEATURES["use_tcu_gears"]:
+    elif CP.carFingerprint in FEATURES["use_tcu_gears"]:
       signals += [
         ("CUR_GR", "TCU12", 0)
       ]
