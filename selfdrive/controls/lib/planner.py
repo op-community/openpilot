@@ -24,7 +24,7 @@ AWARENESS_DECEL = -0.2     # car smoothly decel at .2m/s^2 when user is distract
 # lookup tables VS speed to determine min and max accels in cruise
 # make sure these accelerations are smaller than mpc limits
 _A_CRUISE_MIN_V = [-1.5, -1.5, -1.5, -1., -.5]
-_A_CRUISE_MIN_V_FOLLOWING = [-8., -8., -8., -8., -8.]
+_A_CRUISE_MIN_V_FOLLOWING = [-3.5, -3.5, -3.5, -3.5, -3.5]
 _A_CRUISE_MIN_BP = [ 0., 5.,  10., 20.,  40.]
 
 # need fast accel at very low speed for stop and go
@@ -127,7 +127,7 @@ class Planner():
     lead_2 = sm['radarState'].leadTwo
 
     enabled = (long_control_state == LongCtrlState.pid) or (long_control_state == LongCtrlState.stopping)
-    following = lead_1.status and lead_1.dRel < 45.0 and lead_1.vLeadK > v_ego and lead_1.aLeadK > 0.0
+    following = lead_1.status and lead_1.dRel < 45.0
 
     # Calculate speed for normal cruise control
     if enabled and not self.first_loop and not sm['carState'].gasPressed:
