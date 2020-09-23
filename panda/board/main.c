@@ -140,12 +140,19 @@ void set_safety_mode(uint16_t mode, int16_t param) {
       set_intercept_relay(true);
       heartbeat_counter = 0U;
       can_silent = ALL_CAN_LIVE;
+      if (board_has_obd()) {
+        if ((hyundai_community_mdps_harness_present) && (hyundai_community_mdps_harness_can1_present)) {
+          current_board->set_can_mode(CAN_MODE_NORMAL);
+        } else {
+          current_board->set_can_mode(CAN_MODE_OBD_CAN2);
+        }
+      }
       break;
     default:
       set_intercept_relay(true);
       heartbeat_counter = 0U;
       if (board_has_obd()) {
-        if (hyundai_community_mdps_at_obd_harness_confirmed_present) {
+        if ((hyundai_community_mdps_harness_present) && (hyundai_community_mdps_harness_obd_present)) {
           current_board->set_can_mode(CAN_MODE_OBD_CAN2);
         } else {
           current_board->set_can_mode(CAN_MODE_NORMAL);
