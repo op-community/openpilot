@@ -139,20 +139,16 @@ void set_safety_mode(uint16_t mode, int16_t param) {
     case SAFETY_ELM327:
       set_intercept_relay(true);
       heartbeat_counter = 0U;
-      if (board_has_obd()) {
-        current_board->set_can_mode(CAN_MODE_OBD_CAN2);
-      }
       can_silent = ALL_CAN_LIVE;
       break;
     default:
       set_intercept_relay(true);
       heartbeat_counter = 0U;
       if (board_has_obd()) {
-  // make this OBD_CAN2 if MDPS harness is directly connected to OBD or leave it at NORMAL
-        if (hyundai_community_mdps_harness_present) {
-          current_board->set_can_mode(CAN_MODE_NORMAL);
-        } else {
+        if (hyundai_community_mdps_at_obd_harness_confirmed_present) {
           current_board->set_can_mode(CAN_MODE_OBD_CAN2);
+        } else {
+          current_board->set_can_mode(CAN_MODE_NORMAL);
         }
       }
       can_silent = ALL_CAN_LIVE;

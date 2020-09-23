@@ -104,6 +104,9 @@ bool cruise_engaged_prev = false;
 float vehicle_speed = 0;
 bool vehicle_moving = false;
 bool hyundai_community_mdps_harness_present = true;
+bool hyundai_community_mdps_at_obd_harness_present = False;
+bool hyundai_community_mdps_at_obd_harness_confirmed_present = False;
+
 
 
 // for safety modes with torque steering control

@@ -2,9 +2,23 @@ int default_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
- if ((bus == 0) && (addr == 593 || addr == 897)) {
+  if ((bus == 0) && (addr == 593 || addr == 897)) {
     hyundai_community_mdps_harness_present = false;
   }
+
+  if (board_has_obd()) {
+    current_board->set_can_mode(CAN_MODE_OBD_CAN2);
+    if (hyundai_community_mdps_harness_present && (bus == 1) && (addr == 593)) {
+       hyundai_community_mdps_at_obd_harness_present = True;
+    }
+
+    if (hyundai_community_mdps_at_obd_harness_present && (bus == 1) && (addr == 897)) {
+      hyundai_community_mdps_at_obd_harness_confirmed_present = True;
+    }
+
+    if (!hyundai_community_mdps_at_obd_harness_confirmed_present) {
+     current_board->set_can_mode(CAN_MODE_NORMAL);
+    }
   return true;
 }
 
