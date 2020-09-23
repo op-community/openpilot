@@ -34,10 +34,10 @@ Important step to enable MDPS Harness functionality if you have steering dash li
   - `cd /data/openpilot && git pull`
   - `cd /data/openpilot && git clean -xdf && git reset --hard`
   - if the MDPS harness is type1 then run the below command or skip this step
- `cd /data/openpilot/panda/board/mdpscan1 cp safety_declarations.h /data/openpilot/panda/panda/board`
+ `cd /data/openpilot/panda/board/mdpscan1 cp safety_declarations.h /data/openpilot/panda/board`
   - if the MDPS harness is type2 then run the below command or skip this step
- `cd /data/openpilot/panda/board/mdpsobd cp safety_declarations.h /data/openpilot/panda/panda/board`
-  - `cd /data/openpilot/panda/board git update-index -- skip- worktree data/openpilot/panda/panda/board/safety_declarations.h`
+ `cd /data/openpilot/panda/board/mdpsobd cp safety_declarations.h /data/openpilot/panda/board`
+  - `cd /data/openpilot/panda/board git update-index -- skip- worktree data/openpilot/panda/board/safety_declarations.h`
   - `cd /data/openpilot/panda/python/../board && : && make -f Makefile obj/panda.bin`
   - `cd /data/openpilot/panda ; pkill -f boardd ; PYTHONPATH=..; python -c "from panda import Panda; Panda().flash()"`
   - `reboot`
