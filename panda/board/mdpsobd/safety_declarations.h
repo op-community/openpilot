@@ -108,7 +108,7 @@ bool hyundai_community_mdps_harness_present = true;
 //type = 0 is no mdps harness, type 0 is not necessary to set
 //type = 1 is mdps harness connected directly to can1 replacing lcan
 //type = 2 is mdps harness connected to obd/comma power
-int hyundai_community_mdps_harness_type = 0 ;
+int hyundai_community_mdps_harness_type = 2;
 
 
 // for safety modes with torque steering control
