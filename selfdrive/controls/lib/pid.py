@@ -174,7 +174,7 @@ class PIDController:
     #if 2.2 > setpoint - measurement > 0 and self.last_setpoint > 5.:
     # setpoint = min(self.last_setpoint + 0.0055, setpoint)
     if leadvisible and measurement > .3:
-      aRel = (leadvel**2 - measurement**2) / (2 * (leaddistance - 5))
+      aRel = (leadvel**2 - measurement**2) / (2 * (leaddistance - (max(5, measurement * 1.5))))
       self.f = clip(aRel, -3.5, 2.)
     else:
       self.f = feedforward * self.k_f
