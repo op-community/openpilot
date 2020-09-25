@@ -178,13 +178,13 @@ class PIDController:
     if leadvisible and measurement > .3 and leaddistance < max(3, measurement * 1.5):
       #aNeed = (leadvel**2 - measurement**2) / (2 * max(1, (leaddistance- max(5, measurement * 1.5))))
       #aNeed = clip(aNeed, -.5, .0)
-      setpoint = max(0, setpoint + -1.)
+      setpoint = max(0, setpoint + -.6)
 
     if abs(self.last_setpoint - setpoint) <= 1.:
       if self.last_setpoint > setpoint:
-        setpoint = self.last_setpoint - 0.01
+        setpoint = self.last_setpoint - 0.005
       else:
-        setpoint = self.last_setpoint + 0.01
+        setpoint = self.last_setpoint + 0.005
 
     error = float(apply_deadzone(setpoint - measurement, deadzone))
     self.p = error * self.k_p
