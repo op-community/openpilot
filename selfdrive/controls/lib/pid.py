@@ -123,6 +123,7 @@ class PIDController:
     self.last_kf = 0.
     self.last_error = 0.
     self.last_setpoint = 0.
+    self.last_vlead = 0.
 
     self.reset()
 
@@ -167,17 +168,20 @@ class PIDController:
     self.hasreset = True
     self.atargetfuture = 0
     self.locktarget = False
+    self.last_vlead = 0.
 
   def update(self, setpoint, measurement, speed=0.0, check_saturation=True, override=False, feedforward=0., deadzone=0.,
              freeze_integrator=False, leadvisible=False, leaddistance=0 , leadvel=0):
     self.speed = speed
     self.f = feedforward * self.k_f
+
+    if leadvisible and measurement > .3 and leaddistance < max(5, measurement * 1.5):
+      aNeed = (leadvel**2 - measurement**2) / (2 * max(1, (leaddistance- max(5, measurement * 1.))))
+      aNeed = clip(aNeed, -3., .0)
+      setpoint = max(0, setpoint + min(-1, (aNeed * 1.)))
+
     error = float(apply_deadzone(setpoint - measurement, deadzone))
     self.p = error * self.k_p
-
-    if leadvisible and measurement > .5 and leaddistance < max(5, measurement * 1.5):
-      aNeed = (leadvel**2 - measurement**2) / (2 * max(.1, (leaddistance- max(15, measurement * 1.2))))
-      self.f = clip(aNeed, -3., .5)
 
     if self.last_kf > self.f:
       self.f = self.last_kf - .01
@@ -218,6 +222,7 @@ class PIDController:
     self.last_setpoint = float(setpoint)
     self.last_error = float(error)
     self.last_kf = float(self.f)
+    self.last_vlead = float(leadvel)
 
     self.control = clip(control, self.neg_limit, self.pos_limit)
     return self.control
