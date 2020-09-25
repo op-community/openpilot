@@ -217,7 +217,6 @@ class PIDController:
     self.last_setpoint = float(setpoint)
     self.last_error = float(error)
     self.last_kf = float(self.f)
-    self.last_aNeed = float(aNeed)
 
     self.control = clip(control, self.neg_limit, self.pos_limit)
     return self.control
