@@ -176,17 +176,12 @@ class PIDController:
     self.f = feedforward * self.k_f
 
     if leadvisible and measurement > .3 and leaddistance < max(5, measurement * 1.5):
-      aNeed = (leadvel**2 - measurement**2) / (2 * max(1, (leaddistance- max(5, measurement * 1.))))
-      aNeed = clip(aNeed, -3., .0)
-      setpoint = max(0, setpoint + min(-1, (aNeed * 1.)))
+      aNeed = (leadvel**2 - measurement**2) / (2 * max(1, (leaddistance- max(5, measurement * 1.5))))
+      aNeed = clip(aNeed, -.5, .0)
+      setpoint = max(0, setpoint + min(-1., (aNeed * 1.)))
 
     error = float(apply_deadzone(setpoint - measurement, deadzone))
     self.p = error * self.k_p
-
-    if self.last_kf > self.f:
-      self.f = self.last_kf - .01
-    else:
-      self.f = self.last_kf + .01
 
     if override:
       self.id -= self.i_unwind_rate * float(np.sign(self.id))
@@ -222,7 +217,7 @@ class PIDController:
     self.last_setpoint = float(setpoint)
     self.last_error = float(error)
     self.last_kf = float(self.f)
-    self.last_vlead = float(leadvel)
+    self.last_aNeed = float(aNeed)
 
     self.control = clip(control, self.neg_limit, self.pos_limit)
     return self.control
