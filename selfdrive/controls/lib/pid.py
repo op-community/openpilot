@@ -176,6 +176,8 @@ class PIDController:
     if leadvisible and measurement > .3:
       aRel = (leadvel**2 - measurement**2) / (2 * min(leaddistance, (max(5, measurement * 1.5))))
       self.f = clip(aRel, -3., 1.)
+      if -.5 < self.f < .5:
+        self.f = feedforward * self.k_f
     else:
       self.f = feedforward * self.k_f
 
