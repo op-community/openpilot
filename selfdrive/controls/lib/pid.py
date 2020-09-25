@@ -175,10 +175,13 @@ class PIDController:
     self.speed = speed
     self.f = feedforward * self.k_f
 
-    if leadvisible and measurement > .3 and leaddistance < max(3, measurement * 1.5):
+    if leadvisible and measurement > .3 and (leaddistance < max(3, measurement * 1.5) or (self.locktarget and leaddistance < max(3, measurement * 1.0))):
       #aNeed = (leadvel**2 - measurement**2) / (2 * max(1, (leaddistance- max(5, measurement * 1.5))))
       #aNeed = clip(aNeed, -.5, .0)
       setpoint = max(0, setpoint + -.6)
+      self.locktarget = True
+    else:
+      self.locktarget = False
 
     if abs(self.last_setpoint - setpoint) <= 1.:
       if self.last_setpoint > setpoint:
