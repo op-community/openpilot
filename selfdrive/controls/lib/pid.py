@@ -175,10 +175,16 @@ class PIDController:
     self.speed = speed
     self.f = feedforward * self.k_f
 
-    if leadvisible and measurement > .3 and leaddistance < max(5, measurement * 1.5):
-      aNeed = (leadvel**2 - measurement**2) / (2 * max(1, (leaddistance- max(5, measurement * 1.5))))
-      aNeed = clip(aNeed, -.5, .0)
-      setpoint = max(0, setpoint + min(-1., (aNeed * 1.)))
+    if leadvisible and measurement > .3 and leaddistance < max(3, measurement * 1.5):
+      #aNeed = (leadvel**2 - measurement**2) / (2 * max(1, (leaddistance- max(5, measurement * 1.5))))
+      #aNeed = clip(aNeed, -.5, .0)
+      setpoint = max(0, setpoint + -1.)
+
+    if abs(self.last_setpoint - setpoint) <= 1.:
+      if self.last_setpoint > setpoint:
+        setpoint = self.last_setpoint - 0.01
+      else:
+        setpoint = self.last_setpoint + 0.01
 
     error = float(apply_deadzone(setpoint - measurement, deadzone))
     self.p = error * self.k_p
@@ -189,7 +195,7 @@ class PIDController:
       i = self.id + error * self.k_i * self.rate
       if self.last_error > 1.8 >= error and i > 0:
         i = 0
-      i = min(i, 0.2)
+      i = min(i, 0.5)
       control = self.p + self.f + i
 
       if self.convert is not None:
