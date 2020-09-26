@@ -110,7 +110,10 @@ class LongitudinalMpc():
   #  if 5 <self.x_lead < 20 and v_ego >0.:
   #    TR = max(TR, interp((self.x_lead/max(v_ego,0.1)), BpdvTr, TrdvY))
     if self.v_lead < v_ego + .6 and v_ego > .3:
-      TR = self.last_TR + .005
+      if self.x_lead < 25.:
+        TR = self.last_TR + .1
+      else:
+        TR = self.last_TR + .005
     else:
       TR = self.last_TR - .0025
 
