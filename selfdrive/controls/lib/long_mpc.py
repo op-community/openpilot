@@ -18,9 +18,6 @@ TrY = [1., 1.2, 1.4, 1.3, 1.2,  1., .85]
 BpvlTr = [-10., -5., -2, -1., 2.5]
 TrvlY = [  3., 2.5, 2.2,  1.6, 0.8]
 
-#BpdTr = [2., 5., 8., 13., 17., 20., 30., 50.]
-#TrdY = [3.5, 3., 2.5, 2.2, 2., 1.8, 1.7, 1.6]
-
 class LongitudinalMpc():
   def __init__(self, mpc_id):
     self.mpc_id = mpc_id
@@ -107,15 +104,18 @@ class LongitudinalMpc():
     t = sec_since_boot()
     maxTR = interp(v_ego, BpTr, TrY)
     maxTR = max(maxTR, interp((self.v_lead - v_ego), BpvlTr, TrvlY))
-  #  if 5 <self.x_lead < 20 and v_ego >0.:
-  #    TR = max(TR, interp((self.x_lead/max(v_ego,0.1)), BpdvTr, TrdvY))
+
     if self.v_lead < v_ego + .6 and v_ego > .3:
       if self.x_lead < 25.:
-        TR = self.last_TR + .1
+        maxTR *= 1.25
+        TR = self.last_TR + .05
       else:
         TR = self.last_TR + .005
     else:
-      TR = self.last_TR - .0025
+      if self.x_lead > 65.:
+        TR = self.last_TR - .025
+      else:
+        TR = self.last_TR - .0025
 
     TR = clip(TR, 0.8, maxTR)
 
