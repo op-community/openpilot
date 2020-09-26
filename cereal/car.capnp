@@ -104,6 +104,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     modeldLagging @89;
     deviceFalling @90;
     visiononlyWarning @ 91;
+    belowSteerSpeedDing @ 92;
 
     dataNeededDEPRECATED @16;
     modelCommIssueDEPRECATED @27;

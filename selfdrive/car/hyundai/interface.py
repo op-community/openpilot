@@ -245,15 +245,13 @@ class CarInterface(CarInterfaceBase):
     events = self.create_common_events(ret)
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
-    if ret.vEgo < (self.CP.minSteerSpeed + .56) and self.CP.minSteerSpeed > 10.:
+    if ret.vEgo < (self.CP.minSteerSpeed + .56) and self.CP.minSteerSpeed > 10. and self.CC.enabled:
       self.low_speed_alert = True
+      events.add(car.CarEvent.EventName.belowSteerSpeedDing)
     if ret.vEgo > (self.CP.minSteerSpeed + .84) or not self.CC.enabled:
       self.low_speed_alert = False
     if self.low_speed_alert:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
-    else:
-      events.remove(car.CarEvent.EventName.belowSteerSpeed)
-
 
     self.CP.enableCruise = (not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
     if self.CS.brakeHold and not self.CC.usestockscc:
