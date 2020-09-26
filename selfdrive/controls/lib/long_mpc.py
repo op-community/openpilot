@@ -107,8 +107,8 @@ class LongitudinalMpc():
     t = sec_since_boot()
     TR = interp(v_ego, BpTr, TrY)
     TR = max(TR, interp((self.v_lead - v_ego), BpvlTr, TrvlY))
-    if 5 <self.x_lead < 20 and v_ego >0.:
-      TR = max(TR, interp((self.x_lead/max(v_ego,0.1)), BpdvTr, TrdvY))
+  #  if 5 <self.x_lead < 20 and v_ego >0.:
+  #    TR = max(TR, interp((self.x_lead/max(v_ego,0.1)), BpdvTr, TrdvY))
 
     if TR > 1.8 and self.last_TR < TR:
       TR = self.last_TR + .01
