@@ -183,7 +183,7 @@ def below_steer_speed_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: 
     "TAKE CONTROL",
     "Steer Unavailable Below %d %s" % (speed, unit),
     AlertStatus.userPrompt, AlertSize.mid,
-    Priority.MID, VisualAlert.none, AudibleAlert.chimeDing, 0., 0.4, .3)
+    Priority.MID, VisualAlert.none, AudibleAlert.chimeDing, 1., 2., 3.)
 
 def calibration_incomplete_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: bool) -> Alert:
   speed = int(MIN_SPEED_FILTER * (CV.MS_TO_KPH if metric else CV.MS_TO_MPH))
@@ -329,9 +329,9 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.visiononlyWarning: {
     ET.PERMANENT: Alert(
-      "Vision Only, Stock Safety Features(AEB/SCC) Disabled",
+      "Vision Only, Stock AEB/SCC Disabled",
       "Be Cautious",
-      AlertStatus.userPrompt, AlertSize.mid,
+      AlertStatus.userPrompt, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.chimeDingRepeat, 1., 2., 5.),
   },
 
