@@ -433,12 +433,12 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       Priority.LOW, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
   },
 
-  EventName.belowSteerSpeed: {
-    ET.WARNING: below_steer_speed_alert,
-  },
-
   EventName.belowSteerSpeedDing: {
     ET.WARNING: EngagementAlert(AudibleAlert.chimeDing),
+  },
+
+  EventName.belowSteerSpeed: {
+    ET.WARNING: below_steer_speed_alert,
   },
 
   EventName.preLaneChangeLeft: {
