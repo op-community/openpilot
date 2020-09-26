@@ -218,9 +218,7 @@ class CarInterface(CarInterfaceBase):
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
 
     params = Params()
-    #ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
-
-    ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
+    ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
 
     if ret.radarDisablePossible:
       ret.openpilotLongitudinalControl = True
@@ -245,7 +243,8 @@ class CarInterface(CarInterfaceBase):
 
     events = self.create_common_events(ret)
 
-    self.CP.enableCruise = False #(not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
+    # This is relevant for my non-scc car I think
+    self.CP.enableCruise = False
     if self.CS.brakeHold and not self.CC.usestockscc:
       events.add(EventName.brakeHold)
     if self.CS.parkBrake and not self.CC.usestockscc:
@@ -313,6 +312,7 @@ class CarInterface(CarInterfaceBase):
     can_sends = self.CC.update(c.enabled, self.CS, self.frame, c.actuators,
                                c.cruiseControl.cancel, c.hudControl.visualAlert, c.hudControl.leftLaneVisible,
                                c.hudControl.rightLaneVisible, c.hudControl.leftLaneDepart, c.hudControl.rightLaneDepart,
-                               c.hudControl.setSpeed, c.hudControl.leadVisible, c.hudControl.leadDistance)
+                               c.hudControl.setSpeed, c.hudControl.leadVisible, c.hudControl.leadDistance,
+                               c.hudControl.leadvRel, c.hudControl.leadyRel)
     self.frame += 1
     return can_sends
