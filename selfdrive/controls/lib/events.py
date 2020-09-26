@@ -327,6 +327,14 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 2., 3.),
   },
 
+  EventName.visiononlyWarning: {
+    ET.PERMANENT: Alert(
+      "Vision Only, Stock Safety Features(AEB/SCC) Disabled",
+      "Be Cautious",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, AudibleAlert.chimeDingRepeat, 1., 2., 5.),
+  },
+
   # ********** events only containing alerts that display while engaged **********
 
   EventName.gasPressed: {
@@ -706,13 +714,6 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       AlertStatus.normal, AlertSize.small,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
     ET.NO_ENTRY: NoEntryAlert("Cruise Fault: Restart the Car"),
-  },
-
-  EventName.visiononlyWarning: {
-    Alert(
-    "Vision only Mode, Stock safety(AEB/SCC) Disabled",
-    AlertStatus.userPrompt, AlertSize.mid,
-    Priority.MID, VisualAlert.none, AudibleAlert.chimeDingRepeat, 0., 0.4, 15.)
   },
 
   EventName.gasUnavailable: {
