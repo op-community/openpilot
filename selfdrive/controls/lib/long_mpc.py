@@ -13,7 +13,7 @@ from selfdrive.controls.lib.drive_helpers import MPC_COST_LONG
 LOG_MPC = os.environ.get('LOG_MPC', False)
 
 BpTr = [0.,  .5,  5, 15., 21., 30., 36.]
-TrY = [1.6, 1.6, 1.8, 1.6, 1.2,  1., .85]
+TrY = [1., 1.2, 1.4, 1.3, 1.2,  1., .85]
 
 BpvlTr = [-10., -5., -4.5, -3.5, -2, -1., 0.1]
 TrvlY = [  3.5, 3.5,  3.2,  3., 2.8,  2.6, 0.8]
@@ -103,7 +103,10 @@ class LongitudinalMpc():
     t = sec_since_boot()
     TR = interp(v_ego, BpTr, TrY)
     TR = max(TR, interp((self.v_lead - v_ego), BpvlTr, TrvlY))
-
+    if TR > 1.8 and self.last_TR < TR:
+      TR = self.last_TR + .01
+    self.last_TR = TR
+    TR = clip(TR, 0.8, 3.5)
     n_its = self.libmpc.run_mpc(self.cur_state, self.mpc_solution, self.a_lead_tau, a_lead, TR)
     duration = int((sec_since_boot() - t) * 1e9)
 
