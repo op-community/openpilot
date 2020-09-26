@@ -16,7 +16,7 @@ const int HYUNDAI_COMMUNITY_ISO_MIN_ACCEL = -350;       // -3.5 m/s2
 bool hyundai_community_non_scc_car = false;
 bool aeb_cmd_act = false;
 int prev_desired_accel = 0;
-int decel_not_ramping =0;
+int decel_not_ramping = 0;
 
 const CanMsg HYUNDAI_COMMUNITY_TX_MSGS[] = {
   {832, 0, 8}, {832, 1, 8},    // LKAS11 Bus 0, 1
@@ -43,7 +43,7 @@ const CanMsg HYUNDAI_COMMUNITY_NONSCC_TX_MSGS[] = {
 AddrCheckStruct hyundai_community_rx_checks[] = {
   {.msg = {{902, 0, 8, .expected_timestep = 10000U}}},
   {.msg = {{916, 0, 8, .expected_timestep = 10000U}}},
-//  {.msg = {{1057, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}}},
+  {.msg = {{1057, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}}},
 };
 const int HYUNDAI_COMMUNITY_RX_CHECK_LEN = sizeof(hyundai_community_rx_checks) / sizeof(hyundai_community_rx_checks[0]);
 
@@ -103,7 +103,6 @@ static uint8_t hyundai_community_compute_checksum(CAN_FIFOMailBox_TypeDef *to_pu
 static int hyundai_community_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
   bool valid;
-
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 

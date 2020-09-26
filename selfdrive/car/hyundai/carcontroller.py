@@ -96,7 +96,8 @@ class CarController():
     self.sendaccmode = not CP.radarDisablePossible
 
   def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert,
-             left_lane, right_lane, left_lane_depart, right_lane_depart, set_speed, lead_visible, lead_dist):
+             left_lane, right_lane, left_lane_depart, right_lane_depart,
+             set_speed, lead_visible, lead_dist, lead_vrel, lead_yrel):
 
     # gas and brake
     self.accel_lim_prev = self.accel_lim
@@ -274,7 +275,7 @@ class CarController():
         self.fca11alivecnt = self.fca11maxcnt - self.fca11inc
 
         can_sends.append(create_scc11(self.packer, enabled,
-                                      self.setspeed, self.lead_visible,
+                                      self.setspeed, self.lead_visible, lead_dist, lead_vrel, lead_yrel,
                                       self.gapsettingdance,
                                       CS.out.standstill, CS.scc11,
                                       self.usestockscc, CS.CP.radarOffCan, self.scc11cnt, self.sendaccmode))

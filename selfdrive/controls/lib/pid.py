@@ -123,6 +123,7 @@ class PIDController:
     self.last_kf = 0.
     self.last_error = 0.
     self.last_setpoint = 0.
+    self.last_vlead = 0.
 
     self.reset()
 
@@ -167,16 +168,29 @@ class PIDController:
     self.hasreset = True
     self.atargetfuture = 0
     self.locktarget = False
+    self.last_vlead = 0.
 
   def update(self, setpoint, measurement, speed=0.0, check_saturation=True, override=False, feedforward=0., deadzone=0.,
-             freeze_integrator=False, leadvisible=False, leaddistance=0):
+             freeze_integrator=False, leadvisible=False, leaddistance=0 , leadvel=0):
     self.speed = speed
-    #if 2.2 > setpoint - measurement > 0 and self.last_setpoint > 5.:
-    # setpoint = min(self.last_setpoint + 0.0055, setpoint)
+    self.f = feedforward * self.k_f
+
+    if leadvisible and setpoint > 1. and (leaddistance < max(3, measurement * 1.8) or (self.locktarget and leaddistance < max(3, measurement * .85))):
+      #aNeed = (leadvel**2 - measurement**2) / (2 * max(1, (leaddistance- max(5, measurement * 1.5))))
+      #aNeed = clip(aNeed, -.5, .0)
+      setpoint = max(0, setpoint -.6)
+      self.locktarget = True
+    else:
+      self.locktarget = False
+
+    if abs(self.last_setpoint - setpoint) <= 1.5:
+      if self.last_setpoint > setpoint:
+        setpoint = self.last_setpoint - 0.005
+      else:
+        setpoint = self.last_setpoint + 0.005
 
     error = float(apply_deadzone(setpoint - measurement, deadzone))
     self.p = error * self.k_p
-    self.f = feedforward * self.k_f
 
     if override:
       self.id -= self.i_unwind_rate * float(np.sign(self.id))
@@ -184,7 +198,7 @@ class PIDController:
       i = self.id + error * self.k_i * self.rate
       if self.last_error > 1.8 >= error and i > 0:
         i = 0
-      i = min(i, 0.2)
+      i = min(i, 0.5)
       control = self.p + self.f + i
 
       if self.convert is not None:
