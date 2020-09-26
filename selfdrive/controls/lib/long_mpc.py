@@ -112,8 +112,8 @@ class LongitudinalMpc():
 
     if TR > 1.8 and self.last_TR < TR:
       TR = self.last_TR + .01
-    else:
-      TR = self.last_TR - .01
+   #else:
+   #   TR = self.last_TR - .01
     self.last_TR = TR
     TR = clip(TR, 0.8, 3.5)
     n_its = self.libmpc.run_mpc(self.cur_state, self.mpc_solution, self.a_lead_tau, a_lead, TR)
