@@ -30,7 +30,13 @@ ___________________________________________________________
 Important step to enable MDPS Harness functionality if you have steering dash light
 [![](https://imgur.com/gVwuVJQ.png)](#)
 
-* Run the following commands-
+* Make the following changes with `nano` to enable MDPS Harness-
+  - `cd /data/openpilot/panda/board && nano safety_declarations.h`
+  - go to line 106 and make `bool hyundai_community_mdps_harness_present = false;` to true
+  - go to line 111 and change the type to `1` or `2` as per yout setup.
+[![](https://imgur.com/Ml7TnHm.png)](#)
+  
+* Run the following commands if not familiar with `nano`-
   - `cd /data/openpilot && git pull`
   - `cd /data/openpilot && git clean -xdf && git reset --hard`
   - if the MDPS harness is type1 then run the below command or skip this step
