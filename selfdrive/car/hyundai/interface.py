@@ -251,6 +251,8 @@ class CarInterface(CarInterfaceBase):
       self.low_speed_alert = False
     if self.low_speed_alert:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
+    else:
+      events.remove(car.CarEvent.EventName.belowSteerSpeed)
 
 
     self.CP.enableCruise = (not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
