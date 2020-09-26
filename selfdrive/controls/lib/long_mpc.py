@@ -103,12 +103,16 @@ class LongitudinalMpc():
     # Calculate mpc
     t = sec_since_boot()
     maxTR = interp(v_ego, BpTr, TrY)
-    maxTR = max(maxTR, interp((self.v_lead - v_ego), BpvlTr, TrvlY))
+    if v_ego < 25.:
+      maxTR = max(maxTR, interp((self.v_lead - v_ego), BpvlTr, TrvlY))
 
     if self.v_lead < v_ego + .6 and v_ego > .3:
       if self.x_lead < 25.:
         maxTR *= 1.1
         TR = self.last_TR + .01
+      elif self.v_lead - v_ego < -10.:
+        maxTR *= 0.75
+        TR = self.last_TR + .005
       else:
         TR = self.last_TR + .005
     else:
