@@ -15,6 +15,7 @@ class CarInterface(CarInterfaceBase):
     self.buttonEvents = []
     self.cp2 = self.CS.get_can2_parser(CP)
     self.visiononlyWarning = False
+    self.belowspeeddingtimer = 0.
 
   @staticmethod
   def compute_gb(accel, speed):
@@ -246,11 +247,15 @@ class CarInterface(CarInterfaceBase):
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
     if ret.vEgo < (self.CP.minSteerSpeed + .56) and self.CP.minSteerSpeed > 10. and self.CC.enabled:
-      if not self.low_speed_alert:
+      if not self.low_speed_alert or self.belowspeeddingtimer > 100:
         events.add(car.CarEvent.EventName.belowSteerSpeedDing)
+        self.belowspeeddingtimer +=1
+      else:
+        self.belowspeeddingtimer = 0.
       self.low_speed_alert = True
     if ret.vEgo > (self.CP.minSteerSpeed + .84) or not self.CC.enabled:
       self.low_speed_alert = False
+      self.belowspeeddingtimer = 0.
     if self.low_speed_alert:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
 
