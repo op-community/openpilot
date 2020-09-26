@@ -183,7 +183,7 @@ def below_steer_speed_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: 
     "TAKE CONTROL",
     "Steer Unavailable Below %d %s" % (speed, unit),
     AlertStatus.userPrompt, AlertSize.mid,
-    Priority.MID, VisualAlert.none, AudibleAlert.none, 0., 0.4, .3)
+    Priority.MID, VisualAlert.none, AudibleAlert.chimeDing, 0., 0.4, .3)
 
 def calibration_incomplete_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: bool) -> Alert:
   speed = int(MIN_SPEED_FILTER * (CV.MS_TO_KPH if metric else CV.MS_TO_MPH))
@@ -226,7 +226,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "Be ready to take over at any time",
       "Always keep hands on wheel and eyes on road",
       AlertStatus.normal, AlertSize.mid,
-      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
+      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 1.),
   },
 
   EventName.startupMaster: {
@@ -234,7 +234,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "WARNING: This branch is not tested",
       "Always keep hands on wheel and eyes on road",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
+      Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 1.),
   },
 
   EventName.startupNoControl: {
@@ -706,6 +706,13 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       AlertStatus.normal, AlertSize.small,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
     ET.NO_ENTRY: NoEntryAlert("Cruise Fault: Restart the Car"),
+  },
+
+  EventName.visiononlyWarning: {
+    Alert(
+    "Vision only Mode, Stock safety(AEB/SCC) Disabled",
+    AlertStatus.userPrompt, AlertSize.mid,
+    Priority.MID, VisualAlert.none, AudibleAlert.chimeDingRepeat, 0., 0.4, 15.)
   },
 
   EventName.gasUnavailable: {

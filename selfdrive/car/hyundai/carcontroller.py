@@ -99,6 +99,7 @@ class CarController():
              left_lane, right_lane, left_lane_depart, right_lane_depart,
              set_speed, lead_visible, lead_dist, lead_vrel, lead_yrel):
 
+    self.enabled = enabled
     # gas and brake
     self.accel_lim_prev = self.accel_lim
     apply_accel = actuators.gas - actuators.brake

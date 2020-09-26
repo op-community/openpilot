@@ -14,6 +14,7 @@ class CarInterface(CarInterfaceBase):
     super().__init__(CP, CarController, CarState)
     self.buttonEvents = []
     self.cp2 = self.CS.get_can2_parser(CP)
+    self.visiononlyWarning = False
 
   @staticmethod
   def compute_gb(accel, speed):
@@ -250,11 +251,14 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.parkBrake)
     if self.CS.brakeUnavailable and not self.CC.usestockscc:
       events.add(EventName.brakeUnavailable)
+    if not self.visiononlyWarning and self.CP.radarDisablePossible and self.CC.enabled:
+      events.add(EventName.visiononlyWarning)
+      self.visiononlyWarning = True
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
-    if ret.vEgo < (self.CP.minSteerSpeed + 2.) and self.CP.minSteerSpeed > 10.:
+    if ret.vEgo < (self.CP.minSteerSpeed + .56) and self.CP.minSteerSpeed > 10.:
       self.low_speed_alert = True
-    if ret.vEgo > (self.CP.minSteerSpeed + 4.):
+    if ret.vEgo > (self.CP.minSteerSpeed + .84):
       self.low_speed_alert = False
     if self.low_speed_alert:
       events.add(car.CarEvent.EventName.belowSteerSpeed)

@@ -103,6 +103,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     neosUpdateRequired @88;
     modeldLagging @89;
     deviceFalling @90;
+    visiononlyWarning @ 91;
 
     dataNeededDEPRECATED @16;
     modelCommIssueDEPRECATED @27;
@@ -339,6 +340,8 @@ struct CarControl {
       chimeWarningRepeat @6;
       chimePrompt @7;
       chimeWarning2Repeat @8;
+      chimeDing @9;
+      chimeDingRepeat @ 10;
     }
   }
 }
