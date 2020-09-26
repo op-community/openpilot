@@ -207,6 +207,11 @@ class PIDController:
       # Update when changing i will move the control away from the limits
       # or when i will move towards the sign of the error
       if ((error >= 0 and (control <= self.pos_limit or i < 0.0)) or
+          (error <= 0 and (control >= self.neg_limit or i > 0.0))) and \
+         not freeze_integrator:
+        self.id = i
+
+    if self.enable_long_derivative:
       if abs(setpoint - self.last_setpoint) / self.rate < self.max_accel_d:  # if setpoint isn't changing much
         d = self.k_d * (error - self.last_error)
         if (self.id > 0 and self.id + d >= 0) or (self.id < 0 and self.id + d <= 0):  # if changing integral doesn't make it cross zero
