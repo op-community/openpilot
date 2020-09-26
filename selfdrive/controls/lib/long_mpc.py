@@ -33,7 +33,7 @@ class LongitudinalMpc():
     self.prev_lead_status = False
     self.prev_lead_x = 0.0
     self.new_lead = False
-    self.v_lead = 0.01
+    self.v_lead = 0.
     self.x_lead = 150.
 
     self.last_cloudlog_t = 0.0
@@ -107,7 +107,7 @@ class LongitudinalMpc():
     t = sec_since_boot()
     TR = interp(v_ego, BpTr, TrY)
     TR = max(TR, interp((self.v_lead - v_ego), BpvlTr, TrvlY))
-    if 5 <self.x_lead < 20:
+    if 5 <self.x_lead < 20 and v_ego >0.:
       TR = max(TR, interp((self.x_lead/v_ego), BpdvTr, TrdvY))
 
     if TR > 1.8 and self.last_TR < TR:
