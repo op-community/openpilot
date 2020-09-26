@@ -94,6 +94,7 @@ class CarController():
     self.radarDisableResetTimer = 0
     self.radarDisableOverlapTimer = 0
     self.sendaccmode = not CP.radarDisablePossible
+    self.enabled = False
 
   def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert,
              left_lane, right_lane, left_lane_depart, right_lane_depart,
