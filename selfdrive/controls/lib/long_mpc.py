@@ -15,8 +15,8 @@ LOG_MPC = os.environ.get('LOG_MPC', False)
 BpTr = [0.,  .5,  5, 15., 21., 30., 36.]
 TrY = [1., 1.2, 1.4, 1.3, 1.2,  1., .85]
 
-BpvlTr = [-10., -5., -2, -1., 2.5]
-TrvlY = [  3., 2.5, 2.2,  1.6, 0.8]
+BpvlTr = [-20. , -10., -5., -2, -1., 2.5]
+TrvlY = [  1.8,  2.8, 2.5, 2.2,  1.6, 0.8]
 
 class LongitudinalMpc():
   def __init__(self, mpc_id):
@@ -112,12 +112,13 @@ class LongitudinalMpc():
       else:
         TR = self.last_TR + .005
     else:
-      if self.x_lead > 65.:
+      if self.x_lead > 65. or self.v_lead > v_ego + 1.1:
+        maxTR *= 0.85
         TR = self.last_TR - .025
       else:
         TR = self.last_TR - .0025
 
-    TR = clip(TR, 0.8, maxTR)
+    TR = clip(TR, 0.7, maxTR)
 
     self.last_TR = TR
 
