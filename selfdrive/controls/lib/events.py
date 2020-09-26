@@ -332,7 +332,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "Vision Only, Stock AEB/SCC Disabled",
       "Be Cautious",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.chimeDingRepeat, 1., 2., 5.),
+      Priority.LOW, VisualAlert.none, AudibleAlert.chimeDingRepeat, 1., 2., 15.),
   },
 
   # ********** events only containing alerts that display while engaged **********
