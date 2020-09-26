@@ -218,9 +218,9 @@ class CarInterface(CarInterfaceBase):
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
 
     params = Params()
+    #ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
 
     ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
-    ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
 
     if ret.radarDisablePossible:
       ret.openpilotLongitudinalControl = True
@@ -245,7 +245,7 @@ class CarInterface(CarInterfaceBase):
 
     events = self.create_common_events(ret)
 
-    self.CP.enableCruise = (not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
+    self.CP.enableCruise = False #(not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
     if self.CS.brakeHold and not self.CC.usestockscc:
       events.add(EventName.brakeHold)
     if self.CS.parkBrake and not self.CC.usestockscc:
