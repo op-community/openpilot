@@ -15,8 +15,8 @@ LOG_MPC = os.environ.get('LOG_MPC', False)
 BpTr = [0.,  .5,  5, 15., 21., 30., 36.]
 TrY = [1., 1.2, 1.4, 1.3, 1.2,  1., .85]
 
-BpvlTr = [-10., -3.5, -2, -1., 0.1]
-TrvlY = [  3.5, 2.8, 2.3,  2., 0.8]
+BpvlTr = [-10., -5., -2, -1., 0.1]
+TrvlY = [  3., 2.8, 2.3,  2., 0.8]
 
 BpdvTr = [1.1, .8, .5, .3, 0.1]
 TrdvY = [.8, 2.6, 2.8, 3., 3.5]
@@ -35,7 +35,7 @@ class LongitudinalMpc():
     self.new_lead = False
     self.v_lead = 0.
     self.x_lead = 150.
-
+    self.last_TR = 1.8
     self.last_cloudlog_t = 0.0
 
   def send_mpc_solution(self, pm, qp_iterations, calculation_time):
@@ -110,12 +110,14 @@ class LongitudinalMpc():
   #  if 5 <self.x_lead < 20 and v_ego >0.:
   #    TR = max(TR, interp((self.x_lead/max(v_ego,0.1)), BpdvTr, TrdvY))
 
-    if TR > 1.8 and self.last_TR < TR:
+    if self.last_TR < TR:
       TR = self.last_TR + .01
-   #else:
-   #   TR = self.last_TR - .01
-    self.last_TR = TR
+    else:
+      TR = self.last_TR - .0025
+    
     TR = clip(TR, 0.8, 3.5)
+    self.last_TR = TR
+
     n_its = self.libmpc.run_mpc(self.cur_state, self.mpc_solution, self.a_lead_tau, a_lead, TR)
     duration = int((sec_since_boot() - t) * 1e9)
 
