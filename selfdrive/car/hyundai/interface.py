@@ -246,8 +246,9 @@ class CarInterface(CarInterfaceBase):
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
     if ret.vEgo < (self.CP.minSteerSpeed + .56) and self.CP.minSteerSpeed > 10. and self.CC.enabled:
+      if not self.low_speed_alert:
+        events.add(car.CarEvent.EventName.belowSteerSpeedDing)
       self.low_speed_alert = True
-      events.add(car.CarEvent.EventName.belowSteerSpeedDing)
     if ret.vEgo > (self.CP.minSteerSpeed + .84) or not self.CC.enabled:
       self.low_speed_alert = False
     if self.low_speed_alert:
