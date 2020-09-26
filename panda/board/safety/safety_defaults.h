@@ -2,7 +2,7 @@ int default_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
- if ((bus == 0) && (addr == 593 || addr == 897)) {
+  if ((bus == 0) && (addr == 593 || addr == 897)) {
     hyundai_community_mdps_harness_present = false;
   }
   return true;

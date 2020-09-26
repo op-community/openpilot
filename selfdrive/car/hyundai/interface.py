@@ -188,7 +188,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.openpilotLongitudinalControl = not (ret.sccBus == 0)
 
-    if candidate in [ CAR.HYUNDAI_GENESIS, CAR.IONIQ_EV_LTD, CAR.IONIQ_HEV, CAR.KONA_EV, CAR.KIA_NIRO_EV, CAR.KIA_SORENTO, CAR.SONATA_2019,
+    if candidate in [ CAR.HYUNDAI_GENESIS, CAR.IONIQ_EV_LTD, CAR.IONIQ_HEV, CAR.KONA_EV, CAR.KIA_SORENTO, CAR.SONATA_2019,
                       CAR.KIA_OPTIMA, CAR.VELOSTER, CAR.KIA_STINGER, CAR.GENESIS_G70, CAR.SONATA_HEV, CAR.SANTA_FE, CAR.GENESIS_G80,
                       CAR.GENESIS_G90]:
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiLegacy
@@ -218,9 +218,9 @@ class CarInterface(CarInterfaceBase):
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
 
     params = Params()
-    #ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
 
     ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
+    ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
 
     if ret.radarDisablePossible:
       ret.openpilotLongitudinalControl = True
@@ -245,7 +245,7 @@ class CarInterface(CarInterfaceBase):
 
     events = self.create_common_events(ret)
 
-    self.CP.enableCruise = False #(not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
+    self.CP.enableCruise = (not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
     if self.CS.brakeHold and not self.CC.usestockscc:
       events.add(EventName.brakeHold)
     if self.CS.parkBrake and not self.CC.usestockscc:
@@ -313,6 +313,7 @@ class CarInterface(CarInterfaceBase):
     can_sends = self.CC.update(c.enabled, self.CS, self.frame, c.actuators,
                                c.cruiseControl.cancel, c.hudControl.visualAlert, c.hudControl.leftLaneVisible,
                                c.hudControl.rightLaneVisible, c.hudControl.leftLaneDepart, c.hudControl.rightLaneDepart,
-                               c.hudControl.setSpeed, c.hudControl.leadVisible, c.hudControl.leadDistance)
+                               c.hudControl.setSpeed, c.hudControl.leadVisible, c.hudControl.leadDistance,
+                               c.hudControl.leadvRel, c.hudControl.leadyRel)
     self.frame += 1
     return can_sends
