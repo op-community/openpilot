@@ -14,6 +14,8 @@ class CarInterface(CarInterfaceBase):
     super().__init__(CP, CarController, CarState)
     self.buttonEvents = []
     self.cp2 = self.CS.get_can2_parser(CP)
+    self.visiononlyWarning = False
+    self.belowspeeddingtimer = 0.
 
   @staticmethod
   def compute_gb(accel, speed):
@@ -188,7 +190,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.openpilotLongitudinalControl = not (ret.sccBus == 0)
 
-    if candidate in [ CAR.HYUNDAI_GENESIS, CAR.IONIQ_EV_LTD, CAR.IONIQ_HEV, CAR.KONA_EV, CAR.KIA_SORENTO, CAR.SONATA_2019,
+    if candidate in [ CAR.HYUNDAI_GENESIS, CAR.IONIQ_EV_LTD, CAR.IONIQ_HEV, CAR.KONA_EV, CAR.KIA_NIRO_EV, CAR.KIA_SORENTO, CAR.SONATA_2019,
                       CAR.KIA_OPTIMA, CAR.VELOSTER, CAR.KIA_STINGER, CAR.GENESIS_G70, CAR.SONATA_HEV, CAR.SANTA_FE, CAR.GENESIS_G80,
                       CAR.GENESIS_G90]:
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiLegacy
@@ -243,22 +245,30 @@ class CarInterface(CarInterfaceBase):
 
     events = self.create_common_events(ret)
 
-    # This is relevant for my non-scc car I think
-    self.CP.enableCruise = False
+    # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
+    if ret.vEgo < (self.CP.minSteerSpeed + .56) and self.CP.minSteerSpeed > 10. and self.CC.enabled:
+      if not self.low_speed_alert and self.belowspeeddingtimer < 100:
+        events.add(car.CarEvent.EventName.belowSteerSpeedDing)
+        self.belowspeeddingtimer +=1
+      else:
+        self.belowspeeddingtimer = 0.
+        self.low_speed_alert = True
+    if ret.vEgo > (self.CP.minSteerSpeed + .84) or not self.CC.enabled:
+      self.low_speed_alert = False
+      self.belowspeeddingtimer = 0.
+    if self.low_speed_alert:
+      events.add(car.CarEvent.EventName.belowSteerSpeed)
+
+    self.CP.enableCruise = (not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
     if self.CS.brakeHold and not self.CC.usestockscc:
       events.add(EventName.brakeHold)
     if self.CS.parkBrake and not self.CC.usestockscc:
       events.add(EventName.parkBrake)
     if self.CS.brakeUnavailable and not self.CC.usestockscc:
       events.add(EventName.brakeUnavailable)
-
-    # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
-    if ret.vEgo < (self.CP.minSteerSpeed + 2.) and self.CP.minSteerSpeed > 10.:
-      self.low_speed_alert = True
-    if ret.vEgo > (self.CP.minSteerSpeed + 4.):
-      self.low_speed_alert = False
-    if self.low_speed_alert:
-      events.add(car.CarEvent.EventName.belowSteerSpeed)
+    if not self.visiononlyWarning and self.CP.radarDisablePossible and self.CC.enabled and not self.low_speed_alert:
+      events.add(EventName.visiononlyWarning)
+      self.visiononlyWarning = True
 
     buttonEvents = []
     if self.CS.cruise_buttons != self.CS.prev_cruise_buttons:
