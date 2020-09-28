@@ -1,6 +1,6 @@
 from numpy import clip
 
-from cereal import car
+from cereal import car, messaging
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.hyundai.carstate import GearShifter
 from selfdrive.car.hyundai.hyundaican import create_lkas11, create_clu11, create_lfa_mfa, \
@@ -96,6 +96,7 @@ class CarController():
     self.radarDisableOverlapTimer = 0
     self.sendaccmode = not CP.radarDisablePossible
     self.enabled = False
+    self.sm = messaging.SubMaster(['controlsState'])
 
   def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert,
              left_lane, right_lane, left_lane_depart, right_lane_depart,
@@ -200,8 +201,12 @@ class CarController():
       self.vdiff = 0.
       self.resumebuttoncnt = 0
 
-    long_control_state = sm['controlsState'].longControlState
-    self.acc_standstill = True if (enabled and long_control_state == LongCtrlState.stopping) else False
+    if CS.out.vEgo < 5.:
+      self.sm.update(0)
+      long_control_state = self.sm['controlsState'].longControlState
+      self.acc_standstill = True if long_control_state == LongCtrlState.stopping else False
+    else:
+      self.acc_standstill = False
 
     if lead_visible:
       self.lead_visible = True
@@ -290,7 +295,7 @@ class CarController():
                                       CS.scc12, self.usestockscc, CS.CP.radarOffCan, self.scc12cnt))
 
         can_sends.append(create_scc14(self.packer, enabled, self.usestockscc, CS.out.stockAeb, apply_accel,
-                                      CS.scc14, self.objdiststat, CS.out.gasPressed))
+                                      CS.scc14, self.objdiststat, CS.out.gasPressed, self.acc_standstill, CS.out.vEgo))
         if CS.CP.fcaBus == -1:
           can_sends.append(create_fca11(self.packer, CS.fca11, self.fca11alivecnt, self.fca11supcnt))
 
