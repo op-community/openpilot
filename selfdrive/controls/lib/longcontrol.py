@@ -88,8 +88,8 @@ class LongControl():
     else:
       dRel = radarState.leadOne.dRel
       vLead = radarState.leadOne.vLead
-    if hasLead:
-      self.stop = True if (dRel < 6.5 and radarState.leadOne.status) else False
+    if hasLead and dRel < 6.5 and radarState.leadOne.status:
+      self.stop = True
       if self.stop:
         self.stop_timer = 100
     elif self.stop_timer > 0:
