@@ -89,7 +89,7 @@ class LongControl():
       dRel = radarState.leadOne.dRel
       vLead = radarState.leadOne.vLead
     if hasLead:
-      self.stop = True if (dRel < 5.0 and radarState.leadOne.status) else False
+      self.stop = True if (dRel < 6.5 and radarState.leadOne.status) else False
       if self.stop:
         self.stop_timer = 100
     elif self.stop_timer > 0:
@@ -131,6 +131,8 @@ class LongControl():
         factor = interp(dRel, [2., 3., 4., 5., 6., 7., 8.], [5., 2.5, 1., .5, .25, .05, .005])
       if output_gb > -BRAKE_STOPPING_TARGET:
         output_gb -= (STOPPING_BRAKE_RATE * factor) / RATE
+      if output_gb < -.5 and CS.standstill:
+        output_gb += .0033
       output_gb = clip(output_gb, -brake_max, gas_max)
       self.v_pid = CS.vEgo
       self.pid.reset()
