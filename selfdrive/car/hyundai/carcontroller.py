@@ -9,6 +9,7 @@ from selfdrive.car.hyundai.hyundaican import create_lkas11, create_clu11, create
 from selfdrive.car.hyundai.values import Buttons, SteerLimitParams, CAR, FEATURES
 from opendbc.can.packer import CANPacker
 from selfdrive.config import Conversions as CV
+from selfdrive.controls.lib.longcontrol import LongCtrlState
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
@@ -199,7 +200,8 @@ class CarController():
       self.vdiff = 0.
       self.resumebuttoncnt = 0
 
-    self.acc_standstill = False #True if (enabled and not self.acc_paused and CS.out.standstill) else False
+    long_control_state = sm['controlsState'].longControlState
+    self.acc_standstill = True if (enabled and long_control_state == LongCtrlState.stopping) else False
 
     if lead_visible:
       self.lead_visible = True
