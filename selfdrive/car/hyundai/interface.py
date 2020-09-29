@@ -309,9 +309,7 @@ class CarInterface(CarInterfaceBase):
       if b.type == ButtonType.cancel and b.pressed:
         events.add(EventName.buttonCancel)
       if b.type == ButtonType.altButton3 and b.pressed:
-        events.add(EventName.pcmDisable)
-    if EventName.pcmDisable in events.events:
-      events.events.remove(EventName.pcmDisable)
+        events.add(EventName.buttonCancel)
 
     ret.events = events.to_msg()
 
