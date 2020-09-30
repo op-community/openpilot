@@ -260,7 +260,7 @@ class CarInterface(CarInterfaceBase):
       events.add(car.CarEvent.EventName.belowSteerSpeed)
 
     self.CP.enableCruise = (not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
-    if self.CS.brakeHold and not self.CC.usestockscc and not self.CC.acc_standstill:
+    if self.CS.brakeHold and not self.CC.usestockscc:
       events.add(EventName.brakeHold)
     if self.CS.parkBrake and not self.CC.usestockscc:
       events.add(EventName.parkBrake)
