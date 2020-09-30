@@ -132,7 +132,7 @@ class LongControl():
       if output_gb > -BRAKE_STOPPING_TARGET:
         output_gb -= (STOPPING_BRAKE_RATE * factor) / RATE
       if output_gb < -.5 and CS.standstill:
-        output_gb += .0033
+        output_gb += .033
       output_gb = clip(output_gb, -brake_max, gas_max)
       self.v_pid = CS.vEgo
       self.pid.reset()
