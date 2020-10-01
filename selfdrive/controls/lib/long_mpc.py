@@ -124,7 +124,7 @@ class LongitudinalMpc():
 
     TR = clip(TR, 0.7, maxTR)
     if v_ego < 5. and self.v_lead > v_ego + .5:
-      TR = 0.5
+      TR = 0.25
       TR = clip(TR, 0.25, maxTR)
     self.last_TR = TR
 
