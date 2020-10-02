@@ -7,8 +7,7 @@ Ecu = car.CarParams.Ecu
 # Steer torque limits
 class SteerLimitParams:
   def __init__(self, CP):
-    if CP.carFingerprint in [CAR.SONATA, CAR.PALISADE]:
-      self.STEER_MAX = 384
+    self.STEER_MAX = 384
     self.STEER_DELTA_UP = 3
     self.STEER_DELTA_DOWN = 7
     self.STEER_DRIVER_ALLOWANCE = 50
@@ -253,7 +252,7 @@ FEATURES = {
   "send_lfa_mfa": set([CAR.SONATA, CAR.PALISADE, CAR.SONATA_HEV, CAR.SANTA_FE, CAR.KIA_NIRO_EV, CAR.KONA_EV, CAR.KONA,
                        CAR.KONA_HEV, CAR.IONIQ_HEV, CAR.IONIQ_EV_LTD]),
 
-  "allow_high_steer": set([CAR.KONA, CAR.KONA_EV, CAR.KONA_HEV]),
+  "allow_high_steer": set([CAR.KONA, CAR.KONA_EV, CAR.KONA_HEV, CAR.KIA_NIRO_EV]),
 }
 
 ELEC_VEH = set([CAR.IONIQ_EV_LTD, CAR.KONA_EV, CAR.KIA_NIRO_EV])
