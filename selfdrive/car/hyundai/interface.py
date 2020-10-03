@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from cereal import car
 from common.op_params import opParams
+from common.params import Params
 from selfdrive.config import Conversions as CV
 from selfdrive.car.hyundai.values import Ecu, ECU_FINGERPRINT, CAR, FINGERPRINTS, Buttons
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
@@ -177,7 +178,7 @@ class CarInterface(CarInterfaceBase):
 
     op_params = opParams()
 
-    ret.mdpsHarness = op_params.get('MDPS_Harness_Present')  # False if 593 in fingerprint[0] else True
+    ret.mdpsHarness = Params().get('MdpsHarnessEnabled') == b'1'
     ret.sasBus = 0 if (688 in fingerprint[0] or not ret.mdpsHarness) else 1
     ret.fcaBus = 0 if 909 in fingerprint[0] else 2 if 909 in fingerprint[2] else -1
     ret.bsmAvailable = True if 1419 in fingerprint[0] else False
@@ -186,15 +187,15 @@ class CarInterface(CarInterfaceBase):
     ret.evgearAvailable = True if 882 in fingerprint[0] else False
     ret.emsAvailable = True if 608 and 809 in fingerprint[0] else False
 
-    if op_params.get('SCC_Present'):
-      ret.sccBus = 2 if op_params.get('SCC_Harness_Present') else 0
+    if Params().get('SccEnabled') == b'1':
+      ret.sccBus = 2 if 1057 in fingerprint[2] else 0
     else:
       ret.sccBus = -1
 
     ret.radarOffCan = (ret.sccBus == -1)
     ret.radarTimeStep = 0.02
 
-    ret.openpilotLongitudinalControl = op_params.get('Enable_OP_Long') and not (ret.sccBus == 0)
+    ret.openpilotLongitudinalControl = Params().get('LongControlEnabled') == b'1' and not (ret.sccBus == 0)
 
     if candidate in [ CAR.HYUNDAI_GENESIS, CAR.IONIQ_EV_LTD, CAR.IONIQ_HEV, CAR.KONA_EV, CAR.KIA_NIRO_EV, CAR.KIA_SORENTO, CAR.SONATA_2019,
                       CAR.KIA_OPTIMA, CAR.VELOSTER, CAR.KIA_STINGER, CAR.GENESIS_G70, CAR.SONATA_HEV, CAR.SANTA_FE, CAR.GENESIS_G80,
@@ -225,7 +226,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
 
-    ret.radarDisablePossible = op_params.get('Radar_Disable_Activate')
+    ret.radarDisablePossible = Params().get('RadarDisableEnabled') == b'1'
 
     if ret.radarDisablePossible:
       ret.openpilotLongitudinalControl = True
