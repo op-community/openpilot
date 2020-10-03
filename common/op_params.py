@@ -65,10 +65,17 @@ class opParams:
                                                                 'increase the offset(max 0.12) if the vehicle is hugging right lane'
                                                                 'decrease the offset(min 0.0) if the vehicle is hugging left lane'),
                         'ALC_Min_Speed': Param(25.0, VT.number, 'The minimum speed for an automatic lane change MPH/KPH'),
-                        'Radar_Disable_Activate': Param(False, bool, 'Sends UDS to Disable Stock Radar'),
+
+                        'Radar_Disable_Activate': Param(False, bool, 'Sends UDS to Disable Stock Radar, Only turn on if you know what you are doing'),
+
                         'MDPS_Harness_Present': Param(False, bool, 'MDPS harness present'),
-                        'SCC_Present': Param(True, bool, 'Car has stock SCC'),
-                        'SCC_Harness_Present': Param(False, bool, 'Car has SCC Radar connected to BUS2'),}
+                        'SCC_Present': Param(True, bool, 'Car has stock SCC and has radar that sends 1057 message, '
+                                                                 'check fingerprint to confirm you have 1057 msg'),
+                        'SCC_Harness_Present': Param(False, bool, 'Car has SCC Radar connected to BUS2'),
+                        'OP_Engage_w_SCC': Param(True, bool, 'OP will engage when SCC engages'),
+                        'Force_NonSCC_Safety': Param(False, bool, 'If you do not have SCC make this True,'
+                                                                  'you may also choose this if you have SCC but get random Constrols-Mismatch error'),
+                        'Enable_OP_Long': Param(True, bool, 'OP Long will be enabled'),}
 
     self._params_file = '/data/op_params.json'
     self._backup_file = '/data/op_params_corrupt.json'

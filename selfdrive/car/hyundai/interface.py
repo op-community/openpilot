@@ -187,14 +187,14 @@ class CarInterface(CarInterfaceBase):
     ret.emsAvailable = True if 608 and 809 in fingerprint[0] else False
 
     if op_params.get('SCC_Present'):
-      ret.sccBus = 0 if not op_params.get('SCC_Harness_Present') else 2
+      ret.sccBus = 2 if op_params.get('SCC_Harness_Present') else 0
     else:
       ret.sccBus = -1
 
     ret.radarOffCan = (ret.sccBus == -1)
     ret.radarTimeStep = 0.02
 
-    ret.openpilotLongitudinalControl = not (ret.sccBus == 0)
+    ret.openpilotLongitudinalControl = op_params.get('Enable_OP_Long') and not (ret.sccBus == 0)
 
     if candidate in [ CAR.HYUNDAI_GENESIS, CAR.IONIQ_EV_LTD, CAR.IONIQ_HEV, CAR.KONA_EV, CAR.KIA_NIRO_EV, CAR.KIA_SORENTO, CAR.SONATA_2019,
                       CAR.KIA_OPTIMA, CAR.VELOSTER, CAR.KIA_STINGER, CAR.GENESIS_G70, CAR.SONATA_HEV, CAR.SANTA_FE, CAR.GENESIS_G80,
@@ -206,7 +206,7 @@ class CarInterface(CarInterfaceBase):
                           CAR.KIA_CADENZA_HEV, CAR.GRANDEUR_HEV, CAR.KIA_NIRO_HEV, CAR.KONA_HEV]):
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunity
 
-    if ret.radarOffCan or (ret.sccBus == 2):
+    if ret.radarOffCan or (ret.sccBus == 2) or op_params.get('Force_NonSCC_Safety'):
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
 
     if ret.mdpsHarness:
@@ -264,7 +264,8 @@ class CarInterface(CarInterfaceBase):
     if self.low_speed_alert:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
 
-    self.CP.enableCruise = (not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc
+    op_params = opParams()
+    self.CP.enableCruise = op_params.get('OP_Engage_w_SCC') and ((not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc)
     if self.CS.brakeHold and not self.CC.usestockscc:
       events.add(EventName.brakeHold)
     if self.CS.parkBrake and not self.CC.usestockscc:
