@@ -7,7 +7,7 @@ XPS-FORK
 * This fork is maintained to support HKG community. The default branch tracks 
 the latest Master-ci updates.
 
-* This fork has support for MDPS Harness<sup>^^</sup> , OP Long<sup>**</sup>, Non-SCC cars
+* This fork has support for MDPS Harness<sup>^^</sup> , OP Long<sup>**</sup>, Non-SCC cars, anti-nag for panda only setup
 
 Notes -
 * Please feel free to add PR for support for non existing FP.
@@ -65,6 +65,10 @@ Important step to enable MDPS Harness functionality if you have steering fault l
   - Run a clean and reset command - `cd /data/openpilot && git clean -xdf && git reset --hard`
   - Retry git pull - `cd /data/openpilot && git pull`
 ___________________________________________________________
+* Check out OP-EDIT to configure your set up -
+  - To open OP-EDIT - `cd /data/openpilot && python op_edit.py`
+  - Enter your user name to track your changes.
+  - Modify values as required.
 
 **If you like my work, don't hesitate to donate- [Paypal-Me](https://paypal.me/ARUNVARADARAJAN)**
 
@@ -172,7 +176,7 @@ Supported Cars
 | Toyota    | Corolla 2017-19               | All               | Stock<sup>3</sup>| 20mph<sup>1</sup>  | 0mph              |
 | Toyota    | Corolla 2020                  | All               | openpilot        | 0mph               | 0mph              |
 | Toyota    | Corolla Hatchback 2019-20     | All               | openpilot        | 0mph               | 0mph              |
-| Toyota    | Corolla Hybrid 2020           | All               | openpilot        | 0mph               | 0mph              |
+| Toyota    | Corolla Hybrid 2020-21        | All               | openpilot        | 0mph               | 0mph              |
 | Toyota    | Highlander 2017-19            | All               | Stock<sup>3</sup>| 0mph               | 0mph              |
 | Toyota    | Highlander 2020               | All               | openpilot        | 0mph               | 0mph              |
 | Toyota    | Highlander Hybrid 2017-19     | All               | Stock<sup>3</sup>| 0mph               | 0mph              |
