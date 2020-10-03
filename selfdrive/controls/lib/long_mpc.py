@@ -13,13 +13,10 @@ from selfdrive.controls.lib.drive_helpers import MPC_COST_LONG
 LOG_MPC = os.environ.get('LOG_MPC', False)
 
 BpTr = [0.,  .5,  5, 15., 21., 30., 36.]
-TrY = [1., 1.2, 1.4, 1.3, 1.2,  1., .85]
+TrY = [1., 1.2, 1.8, 1.3, 1.2,  1., .85]
 
-BpvlTr = [-10., -5., -2, -1., 0.1]
-TrvlY = [  3., 2.8, 2.3,  2., 0.8]
-
-BpdvTr = [1.1, .8, .5, .3, 0.1]
-TrdvY = [.8, 2.6, 2.8, 3., 3.5]
+BpvlTr = [-20. , -10., -3., -1.5, -.8, 2.5]
+TrvlY = [  1.8,  2.8, 2.5, 2.2,  1.6, 0.8]
 
 class LongitudinalMpc():
   def __init__(self, mpc_id):
@@ -68,7 +65,7 @@ class LongitudinalMpc():
     self.cur_state[0].v_ego = v
     self.cur_state[0].a_ego = a
 
-  def update(self, pm, CS, lead, v_cruise_setpoint):
+  def update(self, pm, CS, lead):
     v_ego = CS.vEgo
 
     # Setup current mpc state
@@ -105,17 +102,30 @@ class LongitudinalMpc():
 
     # Calculate mpc
     t = sec_since_boot()
-    TR = interp(v_ego, BpTr, TrY)
-    TR = max(TR, interp((self.v_lead - v_ego), BpvlTr, TrvlY))
-  #  if 5 <self.x_lead < 20 and v_ego >0.:
-  #    TR = max(TR, interp((self.x_lead/max(v_ego,0.1)), BpdvTr, TrdvY))
+    maxTR = interp(v_ego, BpTr, TrY)
+    if v_ego < 25. or self.x_lead < 25.:
+      maxTR = max(maxTR, interp((self.v_lead - v_ego), BpvlTr, TrvlY))
 
-    if self.last_TR < TR:
-      TR = self.last_TR + .01
+    if self.v_lead < v_ego + .6 and v_ego > .3:
+      if self.x_lead < 25.:
+        maxTR *= 1.1
+        TR = self.last_TR + .01
+      elif self.v_lead - v_ego < -10.:
+        maxTR *= 0.75
+        TR = self.last_TR + .005
+      else:
+        TR = self.last_TR + .005
     else:
-      TR = self.last_TR - .0025
-    
-    TR = clip(TR, 0.8, 3.5)
+      if self.x_lead > 65.:
+        maxTR *= 0.85
+        TR = self.last_TR - .025
+      else:
+        TR = self.last_TR - .0025
+
+    TR = clip(TR, 0.7, maxTR)
+    if v_ego < 5. and self.v_lead > v_ego + .5:
+      TR = 0.25
+      TR = clip(TR, 0.25, maxTR)
     self.last_TR = TR
 
     n_its = self.libmpc.run_mpc(self.cur_state, self.mpc_solution, self.a_lead_tau, a_lead, TR)

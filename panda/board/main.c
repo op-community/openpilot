@@ -123,8 +123,9 @@ void set_safety_mode(uint16_t mode, int16_t param) {
   }
   switch (mode_copy) {
     case SAFETY_SILENT:
-      set_intercept_relay(true);
+      set_intercept_relay(false);
       if (board_has_obd()) {
+        set_intercept_relay(true);
         current_board->set_can_mode(CAN_MODE_NORMAL);
       }
       can_silent = ALL_CAN_SILENT;
@@ -139,7 +140,6 @@ void set_safety_mode(uint16_t mode, int16_t param) {
     case SAFETY_ELM327:
       set_intercept_relay(true);
       heartbeat_counter = 0U;
-      can_silent = ALL_CAN_LIVE;
       if (board_has_obd()) {
         if ((hyundai_community_mdps_harness_present) && (hyundai_community_mdps_harness_type == 1)) {
           current_board->set_can_mode(CAN_MODE_NORMAL);
@@ -147,6 +147,7 @@ void set_safety_mode(uint16_t mode, int16_t param) {
           current_board->set_can_mode(CAN_MODE_OBD_CAN2);
         }
       }
+      can_silent = ALL_CAN_LIVE;
       break;
     default:
       set_intercept_relay(true);
@@ -847,7 +848,7 @@ int main(void) {
   set_safety_mode(SAFETY_ALLOUTPUT, 0);
 
   // enable CAN TXs
-  current_board->enable_can_transcievers(true);
+  current_board->enable_can_transceivers(true);
 
 #ifndef EON
   spi_init();
