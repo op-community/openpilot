@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from cereal import car
-from common.params import Params
+from common.op_params import opParams
 from selfdrive.config import Conversions as CV
 from selfdrive.car.hyundai.values import Ecu, ECU_FINGERPRINT, CAR, FINGERPRINTS, Buttons
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
@@ -175,16 +175,22 @@ class CarInterface(CarInterfaceBase):
 
     # these cars require a special panda safety mode due to missing counters and checksums in the messages
 
-    ret.mdpsHarness = False if 593 in fingerprint[0] else True
-    ret.sasBus = 0 if 688 in fingerprint[0] else 1
+    op_params = opParams()
+
+    ret.mdpsHarness = op_params.get('MDPS_Harness_Present')  # False if 593 in fingerprint[0] else True
+    ret.sasBus = 0 if (688 in fingerprint[0] or not ret.mdpsHarness) else 1
     ret.fcaBus = 0 if 909 in fingerprint[0] else 2 if 909 in fingerprint[2] else -1
     ret.bsmAvailable = True if 1419 in fingerprint[0] else False
     ret.lfaAvailable = True if 1157 in fingerprint[2] else False
     ret.lvrAvailable = True if 871 in fingerprint[0] else False
     ret.evgearAvailable = True if 882 in fingerprint[0] else False
     ret.emsAvailable = True if 608 and 809 in fingerprint[0] else False
-  
-    ret.sccBus = 0 if 1057 in fingerprint[0] else 2 if 1057 in fingerprint[2] else -1
+
+    if op_params.get('SCC_Present'):
+      ret.sccBus = 0 if not op_params.get('SCC_Harness_Present') else 2
+    else:
+      ret.sccBus = -1
+
     ret.radarOffCan = (ret.sccBus == -1)
     ret.radarTimeStep = 0.02
 
@@ -219,8 +225,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
 
-    params = Params()
-    ret.radarDisablePossible = params.get("IsLdwEnabled", encoding='utf8') == "0"
+    ret.radarDisablePossible = op_params.get('Radar_Disable_Activate')
 
     if ret.radarDisablePossible:
       ret.openpilotLongitudinalControl = True
