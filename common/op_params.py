@@ -66,7 +66,7 @@ class opParams:
                                                                 'decrease the offset(min 0.0) if the vehicle is hugging left lane'),
                         'ALC_Min_Speed': Param(25.0, VT.number, 'The minimum speed for an automatic lane change MPH/KPH'),
                         'Radar_Disable_Activate': Param(False, bool, 'Sends UDS to Disable Stock Radar'),
-                        'MDPS_Harness_Present': Param(True, bool, 'MDPS harness present'),
+                        'MDPS_Harness_Present': Param(False, bool, 'MDPS harness present'),
                         'SCC_Present': Param(True, bool, 'Car has stock SCC'),
                         'SCC_Harness_Present': Param(False, bool, 'Car has SCC Radar connected to BUS2'),}
 
