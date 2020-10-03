@@ -66,7 +66,7 @@ Important step to enable MDPS Harness functionality if you have steering fault l
   - Retry git pull - `cd /data/openpilot && git pull`
 ___________________________________________________________
 * Check out OP-EDIT to configure your set up -
-  - To open OP-EDIT - `cd /data/openpilot && python op-edit.py`
+  - To open OP-EDIT - `cd /data/openpilot && python op_edit.py`
   - Enter your user name to track your changes.
   - Modify values as required.
 
