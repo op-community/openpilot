@@ -61,31 +61,7 @@ class opParams:
     """
 
     VT = ValueTypes()
-    self.fork_params = {'dynamic_follow': Param('auto', str, 'Can be: (\'traffic\', \'relaxed\', \'roadtrip\'): Left to right increases in following distance.\n'
-                                                             'All profiles support dynamic follow so you\'ll get your preferred distance while\n'
-                                                             'retaining the smoothness and safety of dynamic follow!'),
-                        'global_df_mod': Param(1.0, VT.number, 'The multiplier for the current distance used by dynamic follow. The range is limited from 0.85 to 1.2\n'
-                                                               'Smaller values will get you closer, larger will get you farther\n'
-                                                               'This is multiplied by any profile that\'s active. Set to 1. to disable', live=True),
-                        'min_TR': Param(0.9, VT.number, 'The minimum allowed following distance in seconds. Default is 0.9 seconds.\n'
-                                                        'The range is limited from 0.85 to 1.6.', live=True),
-                        'alca_nudge_required': Param(True, bool, 'Whether to wait for applied torque to the wheel (nudge) before making lane changes. '
-                                                                 'If False, lane change will occur IMMEDIATELY after signaling'),
-                        'alca_min_speed': Param(25.0, VT.number, 'The minimum speed allowed for an automatic lane change (in MPH)'),
-                        'steer_ratio': Param(None, VT.none_or_number, '(Can be: None, or a float) If you enter None, openpilot will use the learned sR.\n'
-                                                                      'If you use a float/int, openpilot will use that steer ratio instead', live=True),
-                        'lane_speed_alerts': Param('silent', str, 'Can be: (\'off\', \'silent\', \'audible\')\n'
-                                                                  'Whether you want openpilot to alert you of faster-traveling adjacent lanes'),
-                        'upload_on_hotspot': Param(False, bool, 'If False, openpilot will not upload driving data while connected to your phone\'s hotspot'),
-                        'enable_long_derivative': Param(False, bool, 'If you have longitudinal overshooting, enable this! This enables derivative-based\n'
-                                                                     'integral wind-down to help reduce overshooting within the long PID loop'),
-                        'disengage_on_gas': Param(True, bool, 'Whether you want openpilot to disengage on gas input or not'),
-                        'update_behavior': Param('auto', str, 'Can be: (\'off\', \'alert\', \'auto\') without quotes\n'
-                                                              'off will never update, alert shows an alert on-screen\n'
-                                                              'auto will reboot the device when an update is seen'),
-                        'hide_auto_df_alerts': Param(False, bool, 'Hides the alert that shows what profile the model has chosen'),
-                        'log_auto_df': Param(False, bool, 'Logs dynamic follow data for auto-df'),
-
+    self.fork_params = {'alca_min_speed': Param(25.0, VT.number, 'The minimum speed for an automatic lane change MPH/KPH'),
                         'Radar_Disable_Activate': Param(False, bool, 'Sends UDS to Disable Stock Radar'),
                         'MDPS_Harness_Present': Param(True, bool, 'MDPS harness present'),
                         'SCC_Present': Param(True, bool, 'Car has stock SCC'),
