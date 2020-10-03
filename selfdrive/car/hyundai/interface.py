@@ -265,8 +265,7 @@ class CarInterface(CarInterfaceBase):
     if self.low_speed_alert:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
 
-    op_params = opParams()
-    self.CP.enableCruise = op_params.get('OP_Engage_w_SCC') and ((not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc)
+    self.CP.enableCruise = Params().get('EnableOPwithCC') == b'1' and ((not self.CP.openpilotLongitudinalControl) or self.CC.usestockscc)
     if self.CS.brakeHold and not self.CC.usestockscc:
       events.add(EventName.brakeHold)
     if self.CS.parkBrake and not self.CC.usestockscc:

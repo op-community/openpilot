@@ -582,6 +582,7 @@ def main():
     ("RadarDisableEnabled", "0"),
     ("MdpsHarnessEnabled", "0"),
     ("SccEnabled", "1"),
+    ("EnableOPwithCC", "1"),
     ("IsDriverViewEnabled", "0"),
   ]
 
