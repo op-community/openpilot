@@ -58,7 +58,7 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.pid.kfBP = [0., 10., 30.]
     ret.lateralTuning.pid.kfV = [0.00002, 0.00002, 0.00002]
 
-    if candidate == CAR.SANTA_FE:
+    if candidate in [CAR.SANTA_FE, CAR.SANTA_FE_2017]:
       ret.mass = 3982. * CV.LB_TO_KG + STD_CARGO_KG
       ret.wheelbase = 2.766
       # Values from optimizer
@@ -176,8 +176,6 @@ class CarInterface(CarInterfaceBase):
 
     # these cars require a special panda safety mode due to missing counters and checksums in the messages
 
-    op_params = opParams()
-
     ret.mdpsHarness = Params().get('MdpsHarnessEnabled') == b'1'
     ret.sasBus = 0 if (688 in fingerprint[0] or not ret.mdpsHarness) else 1
     ret.fcaBus = 0 if 909 in fingerprint[0] else 2 if 909 in fingerprint[2] else -1
@@ -188,12 +186,8 @@ class CarInterface(CarInterfaceBase):
     ret.emsAvailable = True if 608 and 809 in fingerprint[0] else False
 
     if Params().get('SccEnabled') == b'1':
-      ret.sccBus = 2 if 1057 in fingerprint[2] else 0
-    else:
-      ret.sccBus = -1
-
+      ret.sccBus = 2 if 1057 in fingerprint[2] else 0 if 1057 in fingerprint[0] else -1
     ret.radarOffCan = (ret.sccBus == -1)
-    ret.radarTimeStep = 0.02
 
     ret.openpilotLongitudinalControl = Params().get('LongControlEnabled') == b'1' and not (ret.sccBus == 0)
 
@@ -207,7 +201,7 @@ class CarInterface(CarInterfaceBase):
                           CAR.KIA_CADENZA_HEV, CAR.GRANDEUR_HEV, CAR.KIA_NIRO_HEV, CAR.KONA_HEV]):
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunity
 
-    if ret.radarOffCan or (ret.sccBus == 2) or op_params.get('Force_NonSCC_Safety'):
+    if ret.radarOffCan or (ret.sccBus == 2) or Params().get('EnableOPwithCC') == b'0':
       ret.safetyModel = car.CarParams.SafetyModel.hyundaiCommunityNonscc
 
     if ret.mdpsHarness:
